@@ -1,0 +1,30 @@
+2025/01/19
+	Posit_acosh.cpp:
+		cosh: cosh(y) = (e^y + e^-y) / 2
+		acosh: acosh(x) = ln(x + sqrt(x^2 - 1), x >= 1
+		       acosh(x) = y
+		acosh definition domain: x >= 1, because x < 1, sqrt(x^2 - 1) is not a real number.
+					  when x = 0, acosh(x) = y = 0
+		
+	test7.cpp:
+		test Posit_acosh.cpp
+		compile: g++ -std=c++17 -o test7 test7.cpp Posit_acosh.cpp Posit_sqrt.cpp Posit_log.cpp
+		
+	Posit_cosh.cpp:
+		when |x| is very small, in [0, 0.5 * ln(2)], use format
+		cosh(x) = 1 + sinh^2(x) / cosh(x) 
+		sinh(x) = (e^x - e^-x) / 2, 當x趨近於0, 使用 sinh(x) = e^x - 1來避免丟失精度
+		
+		In tylor: cosh(x) = 1 + x^2 / 2! + x^4 / 4! + x^6 / 6! + ...
+		cosh(-x) = cosh(x)
+		cosh^2(x) - sinh^2(x) = 1
+		x = 0: cosh(0) = 1
+		x close to 0: cosh(x) = 1 + x^2 / 2
+		x close to +inf: cosh(x) ~= e^x / 2
+		x close to -inf: cosh(x) ~= e^-x / 2
+		
+		if x is large, can transform format: cosh(x) = (e^(x/2) * e^(x/2) + e^(-x/2) * e^(-x/2)) / 2, avoid e^x or e^(-x) overflow.
+		
+	test8.cpp:
+		test Posit_cosh.cpp
+		compile: g++ -std=c++17 -o test8 test8.cpp Posit_cosh.cpp Posit_fabs.cpp Posit_exp.cpp

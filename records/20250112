@@ -1,0 +1,77 @@
+2025/01/12
+	myfdlibm.h:
+		64 位posit 分成 32 高位 msw, 32低位 lsw，結構中為先lsw再msw，是因為儲存的數值value與parts是union，共用時，儲存順序是Little-endian。
+		
+		巨集：	
+			GET_HIGH_WORD: 取出 Posit 數值 d 的高位部分，存入變數 i。
+			GET_LOW_WORD : 取出 Posit 數值 d 的低位部分，存入變數 i。
+			SET_HIGH_WORD: 更新 Posit 數值 d 的高位為 v。
+			SET_LOW_WORD : 更新 Posit 數值 d 的低位為 v。
+			EXTRACT_WORDS: 將 Posit 數值 d 同時分解為高位 ix0 和低位 ix1。
+	
+	__kernel_cos.cpp:
+		(x, y): 
+			x: 主要的數值。
+			y: 幫助修正的數值。
+			
+		這些常數是泰勒展開式中高次項的係數，用來提高 cos 函數的逼近精度。
+			one = 1.0
+			C1  = 1/2! 的係數 
+			C2  = 1/4! 的係數
+			C3  = 1/6! 的係數 
+			C4  = 1/8! 的係數
+			C5  = 1/10! 的係數 
+			C6  = 1/12! 的係數
+			
+		33th: ix &= 0x7fffffff;
+			獲得 ix的絕對值。
+			若 x太小，(int)x == 0 ，直接return 1，因為cos(0) = 1
+		
+		z: x ^ 2
+		r: 使用泰勒展開式計算cos近似值，將展開式展開到 x^12。
+		
+		根據x的大小選擇不同的計算:
+			|x| < 0.3: 
+				為什麼是 0.3:
+					當 |x| < 0.3，x ^ 2 的值很小，x ^ 4 x ^ 6 可以被忽略。
+			
+			|x| > 0.78125:
+				為什麼是 0.78125:
+					當 |x| > 0.78125， x ^ 2 的值接近於 1，因此會對 x進行縮小，降低高次項的影響。
+			
+			0.78125 >= |x| >= 0.3:
+				不進行縮放，但一樣要考慮高次項的影響。
+			
+			
+	__kernel_sin.cpp:
+		(x, y, iy):
+			x: 主要的數值。
+			y: 幫助修正的數值。
+			iy:若為0，代表y為0。
+		
+		s1 ~ s6: 對應x ^ 3, x ^ 5, ...的係數。
+		
+		b: |x|。
+		
+		a: 表示極小值，用來範圍判斷。	
+		
+		若 ∣x∣< 2 ^ −27，則可以忽略sin的高次項，直接返回 sin⁡(x) ≈ x。
+		
+		z: x ^ 2。
+		v: x ^ 3。
+		r: 多項式展開的高次項。
+		
+		if(iy == 0): 
+			不用修正。
+		else: 
+			需要修正誤差，sin(x) ≈ x - (補償項)。
+			補償項用y和z計算，減少誤差。
+	
+	test0.cpp:
+		測試 __kernel_sin.cpp。
+		compile: g++ -std=c++17 -o test0 test0.cpp __kernel_sin.cpp
+	
+	test1.cpp:
+		測試 __kernel_cos.cpp。
+		compile: g++ -std=c++17 -o test1 test1.cpp __kernel_cos.cpp
+			

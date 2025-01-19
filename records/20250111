@@ -1,0 +1,8 @@
+2025/01/11
+	compile Result_sin.cpp command:
+		測試 Result_sin.cpp
+		g++ -std=c++17 -o Result_sin Result_sin.cpp Posit_sin.cpp __kernel_cos.cpp __kernel_sin.cpp Posit_fabs.cpp Posit_rempio2.cpp -lgmp -lmpfr
+		
+	compile Result_cos.cpp command:
+		測試 Result_cos.cpp
+		g++ -std=c++17 -o Result_cos Result_cos.cpp Posit_cos.cpp __kernel_cos.cpp __kernel_sin.cpp Posit_fabs.cpp Posit_rempio2.cpp -lgmp -lmpfr

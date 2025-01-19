@@ -1,0 +1,13 @@
+2025/01/14
+	Posit_cosPi:
+		未完成
+		增加一個Posit64常數 pi{3.141592025756836}。
+		把條件判斷改成pi的倍數，計算時利用x * pi來當作kernel的輸入。
+	test5.cpp:
+		測試Posit_cosPi.cpp
+		g++ -std=c++17 -o test5 test5.cpp Posit_cosPi.cpp __kernel_cos.cpp __kernel_sin.cpp Posit_rempio2.cpp Posit_fabs.cpp
+		
+	myfdlibm.h:
+		增加extern Posit64 Posit_cosPi(Posit64 x);
+		
+		
