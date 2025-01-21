@@ -25,7 +25,7 @@ using namespace std;
     /* argument reduction needed */
 	else {
 
-	    n = Posit_rempio2(nx, y);
+	    n = Posit_remhalf(x, y);
 	    switch(n&3) {
 		case 0: return  __kernel_cos(y[0],y[1]);
 		case 1: return -__kernel_sin(y[0],y[1],1);
