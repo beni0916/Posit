@@ -8,21 +8,22 @@ Posit_cos.cpp
 Posit_cosPi.cpp
 Posit_fabs.cpp
 Posit_rempio2.cpp
-Posit_sin.cpp
 Posit_tan.cpp
 Posit_acosh.cpp
 Posit_cosh.cpp
+Posit_sinh.cpp
+Posit_asinh.cpp
 
 Not
+Posit_sin.cpp
 Posit_asin.cpp
 Posit_atan.cpp
-Posit_atang.cpp
+Posit_atanh.cpp
 Posit_ceil.cpp
 Posit_exp.cpp
 Posit_floor.cpp
 Posit_log.cpp
 Posit_log10.cpp
 Posit_pow.cpp
-Posit_sinh.cpp
 Posit_sqrt.cpp
 Posit_tanh.cpp
