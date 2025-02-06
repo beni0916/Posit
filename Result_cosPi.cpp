@@ -173,8 +173,7 @@ int main(){
     string num1;
     random_device rd;
     mt19937 generator(rd());           
-    //double interval[11] = {0, 1, 10, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9};   
-    double interval[2] = {0., 0.24};    
+    double interval[11] = {0, 1, 10, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9};       
 
 
     Run(generator, interval);
