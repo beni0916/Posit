@@ -12,7 +12,7 @@
 compile: make file_name  
 execute: ./file_name 
 
-### Executable file
+### Executable file_name
 1. Result_cosPi  
 2. Result_sinPi  
 3. Result_tanPi  
