@@ -19,8 +19,4 @@ execute: ./file_name
 4. Result_asinPi
 5. Result_acosPi
 6. Result_atanPi
-7. Result_expM1
-
-example:  
-~$ make Result_cosPi  
-~$ ./Result_cosPi  
+7. Result_expM1  
