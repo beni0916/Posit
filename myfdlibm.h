@@ -94,8 +94,8 @@ extern Posit64 Posit_asinPi(Posit64 x);
 extern Posit64 Posit_acosPi(Posit64 x);
 extern Posit64 Posit_atanPi(Posit64 x);
 extern Posit64 Posit_expMinus1(Posit64 x);
-
-extern Posit64 __kernel_cosPi(Posit64 x, Posit64 y);
+extern Posit64 Posit_exp2(Posit64 x);
+extern Posit64 Posit_exp10(Posit64 x);
 
 inline void getRegime(__int32_t ix, int *data){
     int r = 0, k = 0;                   //r紀錄regime bits代表的數值，k紀錄有幾個regime bits
