@@ -17,6 +17,7 @@ RES_ATANPI = Result_atanPi
 RES_EXP = Result_exp
 RES_EXPM1 = Result_expM1
 RES_EXP2 = Result_exp2
+RES_EXP2M1 = Result_exp2M1
 RES_EXP10 = Result_exp10
 
 SRC_RES_COSPI = Result_cosPi.cpp
@@ -34,6 +35,7 @@ SRC_RES_ATANPI = Result_atanPi.cpp
 SRC_RES_EXP = Result_exp.cpp
 SRC_RES_EXPM1 = Result_expM1.cpp
 SRC_RES_EXP2 = Result_exp2.cpp
+SRC_RES_EXP2M1 = Result_exp2M1.cpp
 SRC_RES_EXP10 = Result_exp10.cpp
 
 SRC_SINPI = Posit_sinPi.cpp
@@ -52,9 +54,13 @@ SRC_KER_SIN = __kernel_sin.cpp
 SRC_KER_COS = __kernel_cos.cpp
 SRC_KER_TAN = __kernel_tan.cpp
 
+SRC_KER_SINPI = __kernel_sinPi.cpp
+SRC_KER_COSPI = __kernel_cosPi.cpp
+
 SRC_EXP = Posit_exp.cpp
 SRC_EXPM1 = Posit_expMinus1.cpp
 SRC_EXP2 = Posit_exp2.cpp
+SRC_EXP2M1 = Posit_exp2Minus1.cpp
 SRC_EXP10 = Posit_exp10.cpp
 
 SRC_FABS = Posit_fabs.cpp
@@ -63,7 +69,7 @@ SRC_REMH = Posit_remhalf.cpp
 SRC_SQRT = Posit_sqrt.cpp
 SRC_FLOOR = Posit_floor.cpp
 
-all: $(RES_COSPI) $(RES_SINPI) $(RES_TANPI) $(RES_ASINPI) $(RES_ACOSPI) $(RES_ATANPI) $(RES_EXP) $(RES_EXPM1) $(RES_EXP2) $(RES_EXP10)
+all: $(RES_COSPI) $(RES_SINPI) $(RES_TANPI) $(RES_ASINPI) $(RES_ACOSPI) $(RES_ATANPI) $(RES_EXP) $(RES_EXPM1) $(RES_EXP2) $(RES_EXP2M1) $(RES_EXP10) 
 
 $(RES_COSPI):
 	$(CXX) $(CXXFLAGS) -o $(RES_COSPI) $(SRC_RES_COSPI) $(SRC_COSPI) $(SRC_KER_SIN) $(SRC_KER_COS) $(SRC_FABS) $(SRC_REMH) $(LIBFLAGS)
@@ -91,10 +97,13 @@ $(RES_EXPM1):
 	
 $(RES_EXP2):
 	$(CXX) $(CXXFLAGS) -o $(RES_EXP2) $(SRC_RES_EXP2) $(SRC_EXP2) $(SRC_FLOOR) $(SRC_FABS) $(LIBFLAGS)
+
+$(RES_EXP2M1):
+	$(CXX) $(CXXFLAGS) -o $(RES_EXP2M1) $(SRC_RES_EXP2M1) $(SRC_EXP2M1) $(SRC_FLOOR) $(SRC_FABS) $(LIBFLAGS)
 	
 $(RES_EXP10):
 	$(CXX) $(CXXFLAGS) -o $(RES_EXP10) $(SRC_RES_EXP10) $(SRC_EXP10) $(SRC_EXP) $(LIBFLAGS)
 	
 clean:
-	rm -f $(RES_COSPI) $(RES_SINPI) $(RES_TANPI) $(RES_ASINPI) $(RES_ACOSPI) $(RES_ATANPI) $(RES_EXP) $(RES_EXPM1) $(RES_EXP2) $(RES_EXP10)
+	rm -f $(RES_COSPI) $(RES_SINPI) $(RES_TANPI) $(RES_ASINPI) $(RES_ACOSPI) $(RES_ATANPI) $(RES_EXP) $(RES_EXPM1) $(RES_EXP2) $(RES_EXP2M1) $(RES_EXP10)
 
