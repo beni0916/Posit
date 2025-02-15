@@ -8,6 +8,7 @@
 7. Posit_expMinus1(Posit64 x);
 8. Posit_remhalf(Posit64 x, Posit64 *y);
 9. Posit_exp2(Posit64 x);
+10. Posit_exp2Minus1(Posit64 x);
 
 ### Compile & Execute
 compile: make file_name  
@@ -21,4 +22,6 @@ execute: ./file_name
 5. Result_acosPi
 6. Result_atanPi
 7. Result_expM1
-8. Result_exp2  
+8. Result_exp2
+9. Result_exp2M1
+10. 
