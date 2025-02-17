@@ -85,12 +85,10 @@ extern Posit64 Posit_atanh(Posit64 x);
 
 inline const Posit64 PI(3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067982148086513282306647093844609550582231725359408128481117450284102701938521105559644622948954930381964428810975665933446128475648233);
 inline const Posit64 PI2(9.8696044010893586188344909998762);
-extern Posit64 __kernel_tan_hp(Posit64 x, Posit64 y, int iy);
 extern Posit64 Posit_cosPi(Posit64 x);
 extern Posit64 Posit_sinPi(Posit64 x);
 extern Posit64 Posit_tanPi(Posit64 x);
 extern __int32_t Posit_remhalf(Posit64 x, Posit64 *y);
-extern __int32_t Posit_remhalf_hp(Posit64 x, Posit64 *y);
 extern Posit64 Posit_asinPi(Posit64 x);
 extern Posit64 Posit_acosPi(Posit64 x);
 extern Posit64 Posit_atanPi(Posit64 x);
@@ -98,8 +96,7 @@ extern Posit64 Posit_expMinus1(Posit64 x);
 extern Posit64 Posit_exp2(Posit64 x);
 extern Posit64 Posit_exp2Minus1(Posit64 x);
 extern Posit64 Posit_exp10(Posit64 x);
-extern Posit64 __kernel_sinPi(Posit64 x, Posit64 y, int iy);
-extern Posit64 __kernel_cosPi(Posit64 x, Posit64 y);
+extern Posit64 Posit_exp10Minus1(Posit64 x);
 
 inline void getRegime(__int32_t ix, int *data){
     int r = 0, k = 0;                   //r紀錄regime bits代表的數值，k紀錄有幾個regime bits
