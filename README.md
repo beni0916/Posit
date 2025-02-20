@@ -12,6 +12,7 @@
 11. Posit_exp10(Posit64 x);
 12. Posit_exp10Minus1(Posit64 x);
 13. Posit_rSqrt(Posit64 x);
+14. Posit_negate(Posit64 x);
 
 ### Compile & Execute
 compile: make file_name  
