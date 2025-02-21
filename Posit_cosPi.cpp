@@ -7,7 +7,7 @@ using namespace std;
 #ifdef __STDC__
 	Posit64 Posit_cosPi(Posit64 x)
 #else
-	Positt64 Posit_cosPi(x)
+	Posit64 Posit_cosPi(x)
 	Posit64 x;
 #endif
 {
