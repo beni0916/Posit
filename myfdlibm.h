@@ -98,6 +98,7 @@ extern Posit64 Posit_exp2Minus1(Posit64 x);
 extern Posit64 Posit_exp10(Posit64 x);
 extern Posit64 Posit_exp10Minus1(Posit64 x);
 extern Posit64 Posit_rSqrt(Posit64 x);
+extern Posit64 Posit_log2(Posit64 x);
 
 inline void getRegime(__int32_t ix, int *data){
     int r = 0, k = 0;                   //r紀錄regime bits代表的數值，k紀錄有幾個regime bits

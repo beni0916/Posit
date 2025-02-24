@@ -23,6 +23,8 @@ RES_EXP10M1 = Result_exp10M1
 
 RES_RSQRT = Result_rSqrt
 
+RES_LOG2 = Result_log2
+
 SRC_RES_COSPI = Result_cosPi.cpp
 SRC_RES_SINPI = Result_sinPi.cpp
 SRC_RES_TANPI = Result_tanPi.cpp
@@ -43,6 +45,8 @@ SRC_RES_EXP10 = Result_exp10.cpp
 SRC_RES_EXP10M1 = Result_exp10M1.cpp
 
 SRC_RES_RSQRT = Result_rSqrt.cpp
+
+SRC_RES_LOG2 = Result_log2.cpp
 
 SRC_SINPI = Posit_sinPi.cpp
 SRC_COSPI = Posit_cosPi.cpp
@@ -67,6 +71,8 @@ SRC_EXP2M1 = Posit_exp2Minus1.cpp
 SRC_EXP10 = Posit_exp10.cpp
 SRC_EXP10M1 = Posit_exp10Minus1.cpp
 
+SRC_LOG2 = Posit_log2.cpp
+
 SRC_FABS = Posit_fabs.cpp
 SRC_REMP = Posit_rempio2.cpp
 SRC_REMH = Posit_remhalf.cpp
@@ -74,7 +80,7 @@ SRC_SQRT = Posit_sqrt.cpp
 SRC_RSQRT = Posit_rSqrt.cpp
 SRC_FLOOR = Posit_floor.cpp
 
-all: $(RES_COSPI) $(RES_SINPI) $(RES_TANPI) $(RES_ASINPI) $(RES_ACOSPI) $(RES_ATANPI) $(RES_EXP) $(RES_EXPM1) $(RES_EXP2) $(RES_EXP2M1) $(RES_EXP10) $(RES_EXP10M1) $(RES_RSQRT)
+all: $(RES_COSPI) $(RES_SINPI) $(RES_TANPI) $(RES_ASINPI) $(RES_ACOSPI) $(RES_ATANPI) $(RES_EXP) $(RES_EXPM1) $(RES_EXP2) $(RES_EXP2M1) $(RES_EXP10) $(RES_EXP10M1) $(RES_RSQRT) $(RES_LOG2)
 
 $(RES_COSPI):
 	$(CXX) $(CXXFLAGS) -o $(RES_COSPI) $(SRC_RES_COSPI) $(SRC_COSPI) $(SRC_KER_SIN) $(SRC_KER_COS) $(SRC_FABS) $(SRC_REMH) $(LIBFLAGS)
@@ -114,7 +120,10 @@ $(RES_EXP10M1):
 
 $(RES_RSQRT):
 	$(CXX) $(CXXFLAGS) -o $(RES_RSQRT) $(SRC_RES_RSQRT) $(SRC_RSQRT) $(LIBFLAGS)
+
+$(RES_LOG2):
+	$(CXX) $(CXXFLAGS) -o $(RES_LOG2) $(SRC_RES_LOG2) $(SRC_LOG2) $(SRC_SQRT) $(LIBFLAGS)
 	
 clean:
-	rm -f $(RES_COSPI) $(RES_SINPI) $(RES_TANPI) $(RES_ASINPI) $(RES_ACOSPI) $(RES_ATANPI) $(RES_EXP) $(RES_EXPM1) $(RES_EXP2) $(RES_EXP2M1) $(RES_EXP10) $(RES_EXP10M1) $(RES_RSQRT)
+	rm -f $(RES_COSPI) $(RES_SINPI) $(RES_TANPI) $(RES_ASINPI) $(RES_ACOSPI) $(RES_ATANPI) $(RES_EXP) $(RES_EXPM1) $(RES_EXP2) $(RES_EXP2M1) $(RES_EXP10) $(RES_EXP10M1) $(RES_RSQRT) $(RES_LOG2)
 
