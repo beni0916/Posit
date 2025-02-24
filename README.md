@@ -13,6 +13,7 @@
 12. Posit_exp10Minus1(Posit64 x);
 13. Posit_rSqrt(Posit64 x);
 14. Posit_negate(Posit64 x);
+15. Posit_log2(Posit64 x);
 
 ### Compile & Execute
 compile: make file_name  
@@ -30,6 +31,7 @@ execute: ./file_name
 9. Result_exp2M1
 10. Result_exp10
 11. Result_exp10M1
-12. Result_rSqrt  
+12. Result_rSqrt
+13. Result_log2
     
     
