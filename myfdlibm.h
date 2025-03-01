@@ -99,6 +99,19 @@ extern Posit64 Posit_exp10(Posit64 x);
 extern Posit64 Posit_exp10Minus1(Posit64 x);
 extern Posit64 Posit_rSqrt(Posit64 x);
 extern Posit64 Posit_log2(Posit64 x);
+extern Posit64 Posit_negate(Posit64 x);
+extern Posit64 Posit_abs(Posit64 x);
+extern Posit64 Posit_sign(Posit64 x);
+extern Posit64 Posit_nearestInt(Posit64 x);
+extern Posit64 Posit_next(Posit64 x);
+extern Posit64 Posit_prior(Posit64 x);
+extern bool Posit_compareEqual(Posit64 x, Posit64 y);
+extern bool Posit_compareNotEqual(Posit64 x, Posit64 y);
+extern bool Posit_compareGreater(Posit64 x, Posit64 y);
+extern bool Posit_compareGreaterEqual(Posit64 x, Posit64 y);
+extern bool Posit_compareLess(Posit64 x, Posit64 y);
+extern bool Posit_compareLessEqual(Posit64 x, Posit64 y);
+
 
 inline void getRegime(__int32_t ix, int *data){
     int r = 0, k = 0;                   //r紀錄regime bits代表的數值，k紀錄有幾個regime bits

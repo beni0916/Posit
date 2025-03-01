@@ -5,18 +5,19 @@ using namespace std;
 #ifndef _DOUBLE_IS_32BITS
 
 #ifdef __STDC__
-	Posit64 Posit_negate(Posit64 x)
+	Posit64 Posit_abs(Posit64 x)
 #else
-	Posit64 Posit_negate(x)
+	Posit64 Posit_abs(x)
 	Posit64 x;
 #endif
 {
-    return -1*x;
+    Posit64 y{0.0};
+	if(Posit_compareLess(x, y)) x = Posit_negate(x);
+    return x;
 }
-
 #endif /* _DOUBLE_IS_32BITS */
 
 /*int main(){
     Posit64 x{-34552.26524};
-    cout << Posit_negate(x) << "\n";
+    cout << x << Posit_abs(x) << "\n";
 }*/
