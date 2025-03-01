@@ -12,8 +12,19 @@
 11. Posit_exp10(Posit64 x);
 12. Posit_exp10Minus1(Posit64 x);
 13. Posit_rSqrt(Posit64 x);
-14. Posit_negate(Posit64 x);
-15. Posit_log2(Posit64 x);
+14. Posit_log2(Posit64 x);
+15. Posit_negate(Posit64 x);
+16. Posit_abs(Posit64 x);
+17. Posit_sign(Posit64 x);
+18. Posit_nearestInt(Posit64 x);
+19. Posit_next(Posit64 x);
+20. Posit_prior(Posit64 x);
+21. Posit_compareEqual(Posit64 x, Posit64 y);
+22. Posit_compareNotEqual(Posit64 x, Posit64 y);
+23. Posit_compareGreater(Posit64 x, Posit64 y);
+24. Posit_compareGreaterEqual(Posit64 x, Posit64 y);
+25. Posit_compareLess(Posit64 x, Posit64 y);
+26. Posit_compareLessEqual(Posit64 x, Posit64 y);
 
 ### Compile & Execute
 compile: make file_name  
