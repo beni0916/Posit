@@ -76,7 +76,7 @@ string Difference(string& num1, string& num2) {
 
 string MPFR(double input){
     mpfr_t x, result, pi, mult;
-    char buffer[20];
+    char buffer[50];
 
     mpfr_init2(x, 256);
     mpfr_init2(pi, 256);

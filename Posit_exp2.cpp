@@ -54,29 +54,49 @@ huge_val = 1.0e+300;
 			rx = rx + ex - x1;	// rx = ex + t / 512
 			x = x1;		// x = x1
 			
+			//cout << "ex = " << ex << endl;
+			//cout << "t  = " << t  << endl;
+			//cout << "x1 = " << x1 << endl;
+			//cout << "rx = " << ex + t / 512 << endl;
+			//cout << "tval = " << tval << endl;
+			//cout << "tval & 511 " << (tval & 511) << endl;
+			
 			/* 2. Adjust for accurate table entry. */
 			x -= Posit64{exp2_deltatable[tval & 511]};
 			
 			/* 3. Compute ex2 = 2^(t/512+e+ex).  */
 			ex2_u = Posit64{exp2_accuratetable[tval & 511]};
 			
+			//cout << "ex2_u = " << ex2_u << endl;
+			
 			tval >>= 9;
 			unsafe = abs(tval) >= (double)-DBL_MIN_EXP - 56;
 			GET_HIGH_WORD(exp, ex2_u);
 			double tem = (double)ex2_u;
+			
+			//cout << "3. tval = " << tval << endl;
+			//cout << "unsafe = " << unsafe << endl;
+			//cout << "tem = " << tem << endl;
+			//cout << "after get high word exp = " << exp << endl;
 			
 			int data[5] = {0};
 			getRegime(exp, data);
 			getExponent(exp, data);
 			int offset = 12 - (N + 1 + data[1]);
 			
+			//cout << "offset = " << offset << endl;
+			//exp = ((exp & UC(0x7ff00000)) + ((tval >> unsafe) << IEEE754_DOUBLE_SHIFT)) | (exp & ~UC(0x7ff00000));
+			//exp = ((exp & ((~(0x7fffffff >> (N + data[1]))) & 0x7fffffff)) + ((tval >> unsafe) << (20 + offset))) | (exp & ~((~(0x7fffffff >> (N + data[1]))) & 0x7fffffff));
+			//cout << "ori exp = " << bitset<32>(exp) << endl;
+			//cout << "exp = " << exp << endl;
+			
 			// 1.
-			int pow_diff = data[0] * 8 + data[2]; // the total power
+			int pow_diff = data[0] * pow(2, N) + data[2]; // the total power
 			int re = 0, ex = 0;	// (r, e)
 			
 			// 2.
-			re = (tval + pow_diff) / 8;
-			ex = (tval + pow_diff) % 8;
+			re = (tval + pow_diff) / pow(2, N);
+			ex = (tval + pow_diff) % ((int)pow(2, N));
 			if(ex < 0)
 			{
 				re = re - 1;
@@ -98,10 +118,16 @@ huge_val = 1.0e+300;
 				base = 0 + ex;
 				base = base | (1 << N);
 			}
-	
+			
+			//cout << "re >= 0 " << re << endl;
+			//cout << "3. base = " << bitset<32>(base) << endl;
+			
 			// 4. caculate shift by regime bit
 			int ori_bit = data[0];
 			int new_bit = re;
+			
+			//cout << "ori_bit = " << ori_bit << endl;
+			//cout << "new_bit = " << new_bit << endl;
 			
 			if(ori_bit >= 0)
 		 		ori_bit = ori_bit + 2;
@@ -115,6 +141,9 @@ huge_val = 1.0e+300;
 			 	
 			int shift_bit = new_bit - ori_bit;
 			int t_num = (0xffffffff >> (32 - shift_bit)) & exp;
+			
+			//cout << "shift bit = " << shift_bit << endl;
+			
 			__uint32_t exp_l;
 			GET_LOW_WORD(exp_l, ex2_u);
 			if(shift_bit > 0)
@@ -151,7 +180,7 @@ huge_val = 1.0e+300;
 
 //int main(void)
 //{
-//	Posit64 num = Posit64{-0.00001};
+//	Posit64 num = Posit64{3.462155139892169053};
 //	cout<< fixed << setprecision(21)<<Posit_exp2(num)<<"\n";
 //}
 
