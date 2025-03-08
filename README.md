@@ -25,6 +25,9 @@
 24. Posit_compareGreaterEqual(Posit64 x, Posit64 y);
 25. Posit_compareLess(Posit64 x, Posit64 y);
 26. Posit_compareLessEqual(Posit64 x, Posit64 y);
+27. Posit_logPlus1(Posit64 x);
+28. Posit_log2Plus1(Posit64 x);
+29. Posit_log10Plus1(Posit64 x);
 
 ### Compile & Execute
 compile: make file_name  
@@ -44,5 +47,8 @@ execute: ./file_name
 11. Result_exp10M1
 12. Result_rSqrt
 13. Result_log2
+14. Result_logP1
+15. Result_log2P1
+16. Result_log10P1
     
     
