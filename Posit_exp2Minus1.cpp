@@ -71,12 +71,12 @@ huge_val = 1.0e+300;
 			int offset = 12 - (N + 1 + data[1]);
 			
 			// 1.
-			int pow_diff = data[0] * 8 + data[2]; // the total power
+			int pow_diff = data[0] * pow(2, N) + data[2]; // the total power
 			int re = 0, ex = 0;	// (r, e)
 			
 			// 2.
-			re = (tval + pow_diff) / 8;
-			ex = (tval + pow_diff) % 8;
+			re = (tval + pow_diff) / pow(2, N);
+			ex = (tval + pow_diff) % ((int)pow(2, N));
 			if(ex < 0)
 			{
 				re = re - 1;

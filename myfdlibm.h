@@ -1,6 +1,6 @@
 #include "universal/number/posit/posit.hpp"
 #ifndef N
-    #define N 2  
+    #define N 2
 #endif
 using Posit64 = sw::universal::posit<64, N>;
 
@@ -98,7 +98,10 @@ extern Posit64 Posit_exp2Minus1(Posit64 x);
 extern Posit64 Posit_exp10(Posit64 x);
 extern Posit64 Posit_exp10Minus1(Posit64 x);
 extern Posit64 Posit_rSqrt(Posit64 x);
+extern Posit64 Posit_logPlus1(Posit64 x);
 extern Posit64 Posit_log2(Posit64 x);
+extern Posit64 Posit_log2Plus1(Posit64 x);
+extern Posit64 Posit_log10Plus1(Posit64 x);
 extern Posit64 Posit_negate(Posit64 x);
 extern Posit64 Posit_abs(Posit64 x);
 extern Posit64 Posit_sign(Posit64 x);
