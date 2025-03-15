@@ -114,6 +114,7 @@ extern bool Posit_compareGreater(Posit64 x, Posit64 y);
 extern bool Posit_compareGreaterEqual(Posit64 x, Posit64 y);
 extern bool Posit_compareLess(Posit64 x, Posit64 y);
 extern bool Posit_compareLessEqual(Posit64 x, Posit64 y);
+extern Posit64 Posit_hypot(Posit64 x, Posit64 y);
 
 
 inline void getRegime(__int32_t ix, int *data){
