@@ -28,6 +28,7 @@
 27. Posit_logPlus1(Posit64 x);
 28. Posit_log2Plus1(Posit64 x);
 29. Posit_log10Plus1(Posit64 x);
+30. Posit_hypot(posit64 x, Posit64 y);
 
 ### Compile & Execute
 compile: make file_name  
@@ -50,5 +51,6 @@ execute: ./file_name
 14. Result_logP1
 15. Result_log2P1
 16. Result_log10P1
+17. Result_hypot
     
     
