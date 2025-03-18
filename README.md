@@ -31,6 +31,8 @@
 30. Posit_hypot(Posit64 x, Posit64 y);
 31. Posit_atan2(Posit64 y, Posit64 x);
 32. Posit_atan2Pi(Posit64 y, Posit64 x);
+33. Posit_compound(Posit64 x, __int32_t y);
+34. Posit_rootN(Posit64 x, __int32_t y);
 
 ### Compile & Execute
 compile: make file_name  
@@ -55,6 +57,8 @@ execute: ./file_name
 16. Result_log10P1
 17. Result_hypot
 18. Result_atan2
-19. Result_atan2Pi  
+19. Result_atan2Pi
+20. Result_compound
+21. Result_rootN  
     
     
