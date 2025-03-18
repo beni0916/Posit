@@ -117,6 +117,8 @@ extern bool Posit_compareLessEqual(Posit64 x, Posit64 y);
 extern Posit64 Posit_hypot(Posit64 x, Posit64 y);
 extern Posit64 Posit_atan2(Posit64 y, Posit64 x);
 extern Posit64 Posit_atan2Pi(Posit64 y, Posit64 x);
+extern Posit64 Posit_compound(Posit64 x, __int32_t y);
+extern Posit64 Posit_rootN(Posit64 x, __int32_t y);
 
 
 inline void getRegime(__int32_t ix, int *data){
