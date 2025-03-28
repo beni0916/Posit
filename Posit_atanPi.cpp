@@ -111,6 +111,24 @@ huge   = 1.0e300;
 
 #endif /* _DOUBLE_IS_32BITS */
 
+/*
+#include <limits>
+#include <cmath>
+
+int main(void)
+{
+	double nan = std::nan("0");
+	double inf = std::numeric_limits<double>::infinity();
+	double max = 1e15;
+	double min = 1e-75;
+	
+	cout << fixed << setprecision(16) << "nan: " << Posit_atanPi(nan) << "\n";
+	cout << fixed << setprecision(16) << "inf: " << Posit_atanPi(inf) << "\n";
+	cout << fixed << setprecision(16) << "max: " << Posit_atanPi(max) << "\n";
+	cout << fixed << setprecision(16) << "min: " << Posit_atanPi(min) << "\n";
+}
+*/
+
 // int main(){
 //     Posit64 x{2.136};
 //     cout << fixed << setprecision(8) << "Input: " << x << "\n";

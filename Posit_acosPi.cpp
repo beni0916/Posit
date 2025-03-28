@@ -32,6 +32,9 @@ qS4 =  7.70381505559019352791e-02; /* 0x3FB3B8C5, 0xB12E9282 */
 	Posit64 x;
 #endif
 {
+	if(x == NAR)
+		return NAR;
+
 	Posit64 z,p,q,r,w,s,c,df, fabs_x = Posit_fabs(x);
 	__int32_t hx,ix;
 
@@ -78,6 +81,24 @@ qS4 =  7.70381505559019352791e-02; /* 0x3FB3B8C5, 0xB12E9282 */
 }
 
 #endif /* defined(_DOUBLE_IS_32BITS) */
+
+/*
+#include <limits>
+#include <cmath>
+
+int main(void)
+{
+	double nan = std::nan("0");
+	double inf = std::numeric_limits<double>::infinity();
+	double max = 1;
+	double min = 1e-15;
+	
+	cout << fixed << setprecision(16) << "nan: " << Posit_acosPi(nan) << "\n";
+	cout << fixed << setprecision(16) << "inf: " << Posit_acosPi(inf) << "\n";
+	cout << fixed << setprecision(16) << "max: " << Posit_acosPi(max) << "\n";
+	cout << fixed << setprecision(16) << "min: " << Posit_acosPi(min) << "\n";
+}
+*/
 
 // int main(){
 //     Posit64 x{-0.6124};

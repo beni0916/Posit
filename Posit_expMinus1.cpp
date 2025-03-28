@@ -106,6 +106,23 @@ P5   =  4.13813679705723846039e-08; /* 0x3E663769, 0x72BEA4D0 */
 
 #endif /* defined(_DOUBLE_IS_32BITS) */
 
+/*
+#include <limits>
+#include <cmath>
+
+int main(void)
+{
+	double nan = std::nan("0");
+	double inf = std::numeric_limits<double>::infinity();
+	double max = 2e2;
+	double min = 1e-75;
+	
+	cout << fixed << setprecision(16) << "nan: " << Posit_expMinus1(nan) << "\n";
+	cout << fixed << setprecision(16) << "inf: " << Posit_expMinus1(inf) << "\n";
+	cout << fixed << setprecision(16) << "max: " << Posit_expMinus1(max) << "\n";
+	cout << fixed << setprecision(16) << "min: " << Posit_expMinus1(min) << "\n";
+}
+*/
 
 // int main(){
 // 	Posit64 x{-1};
