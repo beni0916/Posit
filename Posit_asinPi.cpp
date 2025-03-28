@@ -34,12 +34,15 @@ qS4 =  7.70381505559019352791e-02; /* 0x3FB3B8C5, 0xB12E9282 */
 	Posit64 x;
 #endif
 {
+	if(x == NAR)
+		return NAR;
+
 	Posit64 t, w, p, q, c, r, s;
 	__int32_t hx,ix;
-
+	
 	GET_HIGH_WORD(hx,x);
 	
-	if(Posit_fabs(x) >= 1) {		/* |x|>= 1 */
+	if(Posit_fabs(x) > 1) {		/* |x|>= 1 */
 	    __uint32_t lx;
 	    GET_LOW_WORD(lx,x);
 	    //if(((ix-0x3ff00000)|lx)==0) return x*pio2_hi+x*pio2_lo;	 /* asin(1)=+-pi/2 with inexact */
@@ -82,6 +85,24 @@ qS4 =  7.70381505559019352791e-02; /* 0x3FB3B8C5, 0xB12E9282 */
 }
 
 #endif /* defined(_DOUBLE_IS_32BITS) */
+
+/*
+#include <limits>
+#include <cmath>
+
+int main(void)
+{
+	double nan = std::nan("0");
+	double inf = std::numeric_limits<double>::infinity();
+	double max = 1;
+	double min = 1e-75;
+	
+	cout << fixed << setprecision(16) << "nan: " << Posit_asinPi(nan) << "\n";
+	cout << fixed << setprecision(16) << "inf: " << Posit_asinPi(inf) << "\n";
+	cout << fixed << setprecision(16) << "max: " << Posit_asinPi(max) << "\n";
+	cout << fixed << setprecision(16) << "min: " << Posit_asinPi(min) << "\n";
+}
+*/
 
 // int main(){
 //     Posit64 x{0.0000954718};
