@@ -3,6 +3,7 @@
     #define N 2
 #endif
 using Posit64 = sw::universal::posit<64, N>;
+using Quire64 = sw::universal::quire<64, N>;
 
 typedef union {
 	Posit64 value{0};
