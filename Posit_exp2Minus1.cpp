@@ -23,6 +23,9 @@ huge_val = 1.0e+300;
 	Posit64 x;
 #endif
 {
+	if(x == NAR)
+		return NAR;
+
     	static Posit64 himark = DBL_MAX_EXP;
     	static Posit64 lomark = DBL_MIN_EXP - DBL_MANT_DIG - 1;
     	
@@ -149,9 +152,21 @@ huge_val = 1.0e+300;
 
 #endif
 
-//int main(void)
-//{
-//	Posit64 num = Posit64{-0.00001};
-//	cout<< fixed << setprecision(21)<<Posit_exp2(num)<<"\n";
-//}
+/*
+#include <limits>
+#include <cmath>
+
+int main(void)
+{
+	double nan = std::nan("0");
+	double inf = std::numeric_limits<double>::infinity();
+	double max = 1e2;
+	double min = 1e-18;
+	
+	cout << fixed << setprecision(16) << "nan: " << Posit_exp2Minus1(nan) << "\n";
+	cout << fixed << setprecision(16) << "inf: " << Posit_exp2Minus1(inf) << "\n";
+	cout << fixed << setprecision(16) << "max: " << Posit_exp2Minus1(max) << "\n";
+	cout << fixed << setprecision(16) << "min: " << Posit_exp2Minus1(min) << "\n";
+}
+*/
 

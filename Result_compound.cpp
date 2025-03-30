@@ -83,7 +83,7 @@ string MPFR(double base, int input){
     mpfr_init2(result, 256);
     
     mpfr_set_d(x, input, MPFR_RNDN); 
-    mpfr_set_d(y, base + 1, MPFR_RNDN); 
+    mpfr_set_d(y, base, MPFR_RNDN); 
     mpfr_pow(result, y, x, MPFR_RNDN);
 
     mpfr_sprintf(buffer, "%.18Rf", result);
@@ -143,7 +143,7 @@ void Run(mt19937 generator, double *interval){
         input = range(generator);
         base = range2(generator);
 
-        num1 = MPFR(base, input);
+        num1 = MPFR(base + 1.0, input);
         num2 = POSIT(base, input);
         num3 = IEEE754(base, input);
        

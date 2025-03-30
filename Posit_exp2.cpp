@@ -190,7 +190,7 @@ int main(void)
 	double nan = std::nan("0");
 	double inf = std::numeric_limits<double>::infinity();
 	double max = 1e2;
-	double min = 1e-16;
+	double min = 1e-15;
 	
 	cout << fixed << setprecision(16) << "nan: " << Posit_exp2(nan) << "\n";
 	cout << fixed << setprecision(16) << "inf: " << Posit_exp2(inf) << "\n";

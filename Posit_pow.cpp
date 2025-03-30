@@ -49,7 +49,7 @@ Posit64 myfmod(Posit64 x, Posit64 y) {
     }
 
     //cout << y * Posit_log(x) << "\n";
-    return Posit_exp(y * Posit_log(x));  // x^y = exp(y * log(x))
+    return Posit_exp2(y * Posit_log2(x));  // x^y = exp(y * log(x))
 }
 
 #endif /* defined(_DOUBLE_IS_32BITS) */
