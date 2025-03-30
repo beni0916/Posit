@@ -34,6 +34,17 @@
 33. Posit_compound(Posit64 x, __int32_t y);
 34. Posit_rootN(Posit64 x, __int32_t y);
 
+35. Quire_pToQ(Posit64 x);
+36. Quire_qNegate(Quire64 x);
+37. Quire_qAbs(Quire64 x);
+38. Quire_qAddP(Quire64 x, Posit64 y);
+39. Quire_qSubP(Quire64 x, Posit64 y);
+40. Quire_qAddQ(Quire64 x, Quire64 y);
+41. Quire_qSubQ(Quire64 x, Quire64 y);
+42. Quire_qMulAdd(Quire64 x, Posit64 y, Posit64 z);
+43. Quire_qMulSub(Quire64 x, Posit64 y, Posit64 z);
+44. Quire_qToP(Posit64 x);
+
 ### Compile & Execute
 compile: make file_name  
 execute: ./file_name 
