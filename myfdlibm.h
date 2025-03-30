@@ -1,4 +1,5 @@
 #include "universal/number/posit/posit.hpp"
+#include "universal/number/posit/quire.hpp"
 #ifndef N
     #define N 2
 #endif
@@ -121,6 +122,17 @@ extern Posit64 Posit_atan2Pi(Posit64 y, Posit64 x);
 extern Posit64 Posit_compound(Posit64 x, __int32_t y);
 extern Posit64 Posit_rootN(Posit64 x, __int32_t y);
 extern Posit64 Posit_new_pow(Posit64 x, Posit64 y);
+
+extern Quire64 Quire_pToQ(Posit64 x);
+extern Quire64 Quire_qNegate(Quire64 x);
+extern Quire64 Quire_qAbs(Quire64 x);
+extern Quire64 Quire_qAddP(Quire64 x, Posit64 y);
+extern Quire64 Quire_qSubP(Quire64 x, Posit64 y);
+extern Quire64 Quire_qAddQ(Quire64 x, Quire64 y);
+extern Quire64 Quire_qSubQ(Quire64 x, Quire64 y);
+extern Quire64 Quire_qMulAdd(Quire64 x, Posit64 y, Posit64 z);
+extern Quire64 Quire_qMulSub(Quire64 x, Posit64 y, Posit64 z);
+extern Posit64 Quire_qToP(Posit64 x);
 
 
 inline void getRegime(__int32_t ix, int *data){
