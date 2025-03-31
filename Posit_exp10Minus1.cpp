@@ -23,3 +23,22 @@ MLN10 = 2.3025850929940456840179914546843642076011014886287729760333279;
 	return res;
 }
 #endif
+
+/*
+#include <limits>
+#include <cmath>
+
+int main(void)
+{
+	double nan = std::nan("0");
+	double inf = std::numeric_limits<double>::infinity();
+	double max = 1e2;
+	double min = 1e-19;
+	
+	cout << fixed << setprecision(16) << "nan: " << Posit_exp10Minus1(nan) << "\n";
+	cout << fixed << setprecision(16) << "inf: " << Posit_exp10Minus1(inf) << "\n";
+	cout << fixed << setprecision(16) << "max: " << Posit_exp10Minus1(max) << "\n";
+	cout << fixed << setprecision(16) << "min: " << Posit_exp10Minus1(min) << "\n";
+}
+
+*/

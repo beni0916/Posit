@@ -111,6 +111,24 @@ zero = 0.0;
 
 #endif /* defined(_DOUBLE_IS_32BITS) */
 
+/*
+#include <limits>
+#include <cmath>
+
+int main(void)
+{
+	double nan = std::nan("0");
+	double inf = std::numeric_limits<double>::infinity();
+	double max = 1e10;
+	double min = 1e-15;
+	
+	cout << fixed << setprecision(16) << "nan: " << Posit_log2Plus1(nan) << "\n";
+	cout << fixed << setprecision(16) << "inf: " << Posit_log2Plus1(inf) << "\n";
+	cout << fixed << setprecision(16) << "max: " << Posit_log2Plus1(max) << "\n";
+	cout << fixed << setprecision(16) << "min: " << Posit_log2Plus1(min) << "\n";
+}
+*/
+
 // int main(){
 //     Posit64 x{45.2523};
 //     cout << fixed << setprecision(20) << Posit_log10(x) << "\n";

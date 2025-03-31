@@ -52,6 +52,24 @@ Posit64 one{1.0}, tiny{1.0e-300};
  
 #endif /* defined(_DOUBLE_IS_32BITS) */
 
+/*
+#include <limits>
+#include <cmath>
+
+int main(void)
+{
+	double nan = std::nan("0");
+	double inf = std::numeric_limits<double>::infinity();
+	double max = 1e74;
+	double min = 1e-4;
+	
+	cout << fixed << setprecision(16) << "nan: " << Posit_rSqrt(nan) << "\n";
+	cout << fixed << setprecision(16) << "inf: " << Posit_rSqrt(inf) << "\n";
+	cout << fixed << setprecision(16) << "max: " << Posit_rSqrt(max) << "\n";
+	cout << fixed << setprecision(16) << "min: " << Posit_rSqrt(min) << "\n";
+}
+*/
+
 // int main(){
 // 	double x = 314.322;
 //  	Posit64 px{x};                  
