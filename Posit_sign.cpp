@@ -13,7 +13,7 @@ using namespace std;
 {   
     Posit64 y{0.0};
     if (isnan(x)) {
-        return NAN;
+        return NAR;
     }
     if (x<y) {
         return Posit64{-1.0};

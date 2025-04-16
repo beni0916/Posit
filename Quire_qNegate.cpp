@@ -12,6 +12,7 @@ using namespace std;
 #endif
 {
     x.set_sign(!x.sign());
+    return x;
 }
 
 #endif /* _DOUBLE_IS_32BITS */

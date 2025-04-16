@@ -23,16 +23,11 @@ using namespace std;
         return floor;
     }
     else {
-        if (floorD == ceilD) {
+        if (((int)floor)%2==0) {
             return floor;
         }
         else {
-            if (((int)floor)%2==0) {
-                return floor;
-            }
-            else {
-                return ceil;
-            }
+            return ceil;
         }
     }
 }

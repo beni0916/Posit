@@ -133,7 +133,7 @@ extern Quire64 Quire_qAddQ(Quire64 x, Quire64 y);
 extern Quire64 Quire_qSubQ(Quire64 x, Quire64 y);
 extern Quire64 Quire_qMulAdd(Quire64 x, Posit64 y, Posit64 z);
 extern Quire64 Quire_qMulSub(Quire64 x, Posit64 y, Posit64 z);
-extern Posit64 Quire_qToP(Posit64 x);
+extern Posit64 Quire_qToP(Quire64 x);
 
 
 inline void getRegime(__int32_t ix, int *data){

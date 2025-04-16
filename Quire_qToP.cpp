@@ -5,9 +5,9 @@ using namespace std;
 #ifndef _DOUBLE_IS_32BITS
 
 #ifdef __STDC__
-    Posit64  qToP(Quire64 x)
+    Posit64  Quire_qToP(Quire64 x)
 #else
-    Posit64  qToP(x)
+    Posit64  Quire_qToP(x)
 	Quire64 x;
 #endif
 {   
@@ -19,7 +19,7 @@ using namespace std;
 
 /*int main(){
     Quire64 x{-8.26524};
-    Posit64 y
-    y = qToP(Quire64 x);
+    Posit64 y;
+    y = qToP(x);
     cout << x << y << "\n";
 }*/

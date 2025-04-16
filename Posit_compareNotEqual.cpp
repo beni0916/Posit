@@ -12,6 +12,7 @@ using namespace std;
     Posit64 y;
 #endif
 {   
+    if (isnan(x)||isnan(y)) return true;
     if (x==y) {
         return false;
     }
