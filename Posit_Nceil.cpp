@@ -12,7 +12,7 @@ using namespace std;
 #endif
 {
     Posit64 y = Posit_floor(x);
-    if (Posit_compareNotEqual(x, y)) {
+    if (x!=y) {
         y = y+1;
     }
     return y;

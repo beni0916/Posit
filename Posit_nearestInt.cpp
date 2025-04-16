@@ -16,14 +16,14 @@ using namespace std;
     Posit64 floorD = x - floor;
     Posit64 ceilD = ceil - x;
 
-    if (Posit_compareGreater(floorD, ceilD)) {
+    if (floorD > ceilD) {
         return ceil;
     }
-    else if (Posit_compareLess(floorD, ceilD)) {
+    else if (floorD < ceilD) {
         return floor;
     }
     else {
-        if (Posit_compareEqual(floor, ceil)) {
+        if (floorD == ceilD) {
             return floor;
         }
         else {

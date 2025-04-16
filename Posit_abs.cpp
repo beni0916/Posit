@@ -12,7 +12,7 @@ using namespace std;
 #endif
 {
     Posit64 y{0.0};
-	if(Posit_compareLess(x, y)) x = Posit_negate(x);
+	if(x<y) x *= -1;
     return x;
 }
 #endif /* _DOUBLE_IS_32BITS */

@@ -12,8 +12,8 @@ using namespace std;
 #endif
 {
 	Posit64 y = (int)x;
-	if (Posit_compareNotEqual(x, y)) {
-		if (Posit_compareLess(y, Posit64{0.0})) {
+	if (x!=y) {
+		if (y<Posit64{0.0}) {
 			y = y-1;
 		}
 	}

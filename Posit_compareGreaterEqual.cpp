@@ -12,7 +12,7 @@ using namespace std;
     Posit64 y;
 #endif
 {   
-    if (Posit_compareGreater(x, y)||Posit_compareEqual(x, y)) {
+    if (x>=y) {
         return true;
     }
     else {
