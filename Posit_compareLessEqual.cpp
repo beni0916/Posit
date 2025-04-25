@@ -12,7 +12,8 @@ using namespace std;
     Posit64 y;
 #endif
 {   
-    if (Posit_compareLess(x, y)||Posit_compareEqual(x, y)) {
+    if (isnan(x)||isnan(y)) return false;
+    if (x<=y) {
         return true;
     }
     else {

@@ -12,10 +12,13 @@ using namespace std;
 #endif
 {   
     Posit64 y{0.0};
-    if (Posit_compareLess(x, y)) {
+    if (isnan(x)) {
+        return NAR;
+    }
+    if (x<y) {
         return Posit64{-1.0};
     }
-    else if (Posit_compareGreater(x, y)) {
+    else if (x>y) {
         return Posit64{1.0};
     }
     else {

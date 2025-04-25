@@ -1,5 +1,6 @@
 #include "universal/number/posit/posit.hpp"
 #include "universal/number/posit/quire.hpp"
+#include <iomanip>
 #ifndef N
     #define N 2
 #endif

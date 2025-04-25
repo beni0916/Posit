@@ -1,15 +1,8 @@
 #include "myfdlibm.h"
 #include <iostream>
-#include <iomanip>
 using namespace std;
 
 #ifndef _DOUBLE_IS_32BITS
-
-#ifdef __STDC__
-Posit64 huge{1.0e300};
-#else
-static Posit64 huge{1.0e300};
-#endif
 
 #ifdef __STDC__
 	Posit64 Posit_floor(Posit64 x)
@@ -17,16 +10,22 @@ static Posit64 huge{1.0e300};
 	Posit64 Posit_floor(x)
 	Posit64 x;
 #endif
-{
-	x = (int)x;
-
-	return x;
+{	
+	if (isnan(x)) return NAR;
+	Posit64 y = (int)x;
+	if (x!=y) {
+		if (y<Posit64{0.0}) {
+			y = y-1;
+		}
+	}
+	return y;
 }
 
 #endif /* _DOUBLE_IS_32BITS */
 
-// int main(){
-//     Posit64 x{124151.325};
-//     cout << fixed << setprecision(10) << Posit_floor(x) << "\n";
-// }
+/*int main(){
+    Posit64 x{-34552.26524};
+	Posit64 y{34552.26524};
+    cout << x << y << Posit_floor(x) << Posit_floor(y) << "\n";
+}*/
 

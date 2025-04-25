@@ -45,6 +45,10 @@
 43. Quire_qMulSub(Quire64 x, Posit64 y, Posit64 z);
 44. Quire_qToP(Posit64 x);
 
+### Fixed file:
+1. Posit_ceil(Posit64 x);
+2. Posit_floor(Posit64 x);
+
 ### Compile & Execute
 compile: make file_name  
 execute: ./file_name 

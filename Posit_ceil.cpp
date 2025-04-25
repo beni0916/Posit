@@ -5,21 +5,23 @@ using namespace std;
 #ifndef _DOUBLE_IS_32BITS
 
 #ifdef __STDC__
-Posit64 huge2{1.0e300};
-#else
-static Posit64 huge2{1.0e300};
-#endif
-
-#ifdef __STDC__
 	Posit64 Posit_ceil(Posit64 x)
 #else
 	Posit64 Posit_ceil(x)
 	Posit64 x;
 #endif
 {
-    x = (int)x;
-    if(x >= 0) x += 1;
-    return x;
+    Posit64 y = Posit_floor(x);
+    if (x!=y) {
+        y = y+1;
+    }
+    return y;
 }
 
 #endif 
+
+/*int main(){
+    Posit64 x{-34552.26524};
+	Posit64 y{34552.26524};
+    cout << x << y << Posit_ceil(x) << Posit_ceil(y) << "\n";
+}*/
