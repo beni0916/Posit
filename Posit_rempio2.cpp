@@ -9,7 +9,7 @@ using namespace std;
 	Posit64 x, y[];
 #endif
 {   
-    Posit64 pi_over2{1.570796326794897};
+    Posit64 pi_over2{1.5707963267948966192313216916398};
     __int32_t n = 0;
 
     while(x > pi_over2){

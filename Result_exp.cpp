@@ -133,7 +133,7 @@ void Run(mt19937 generator, double *interval){
 
     for(int i = 0; i < 1000; i++){
         target = site(generator);                             
-        uniform_real_distribution<double> range(1, 10);  
+        uniform_real_distribution<double> range(0, 10);  
         input = range(generator);
 
         num1 = MPFR(input);

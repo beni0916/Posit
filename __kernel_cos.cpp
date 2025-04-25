@@ -43,13 +43,16 @@ C6  = -1.13596475577881948265e-11; /* 0xBDA8FAE9, 0xBE8838D4 */
 	Posit64 limit2{0.3};
 	if(ix < limit2) 			/* if |x| < 0.3 */ 
 	    return one - (b*z - (z*r - x*y));
-	else {
-		Posit64 limit3{0.78125};
-	    if(ix > limit3) {		/* x > 0.78125 */
-			Posit64 tmp{0.28125};
-		    qx = tmp;
+	else 
+	{
+	    Posit64 limit3{0.78125};
+	    if(ix > limit3) 
+	    {		/* x > 0.78125 */
+		    Posit64 tmp{0.28125};
+		    //qx = tmp;
 	    } 
-		else {
+	    else 
+	    {
 	        x /= 4;
 	    }
 	    hz = b * z - qx;

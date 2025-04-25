@@ -137,8 +137,8 @@ void Run(mt19937 generator, double *interval){
 
     for(int i = 0; i < 1000; i++){
         target = site(generator);                             
-        uniform_real_distribution<double> range(0, 100); 
-        uniform_real_distribution<double> range2(0, 3);
+        uniform_real_distribution<double> range(0, 10); 
+        uniform_real_distribution<double> range2(0, 10);
         
         input = range(generator);
         base = range2(generator);
@@ -155,7 +155,8 @@ void Run(mt19937 generator, double *interval){
         }
 
         ofs << i << "\n";
-        ofs << input << "\n";
+        ofs << "base" << base << endl;
+        ofs << "exponent" << input << "\n";
         ofs << setw(10) << "MPFR: " << num1 << "\n";
         ofs << setw(10) << "Posit: " << num2 << "\n";
         ofs << setw(10) << "IEEE754: " << num3 << "\n\n";

@@ -133,7 +133,7 @@ void Run(mt19937 generator, double *interval){
 
     for(int i = 0; i < 1000; i++){
         target = site(generator);                             
-        uniform_real_distribution<double> range(interval[target], interval[target+1]);  
+        uniform_real_distribution<double> range(interval[target], interval[target + 1]);  
         input = range(generator);
 
         num1 = MPFR(input);
@@ -167,7 +167,8 @@ int main(){
     string num1;
     random_device rd;
     mt19937 generator(rd());           
-    double interval[11] = {0, 1, 10, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9};      
+    //double interval[11] = {0, 1, 10, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9};   
+    double interval[11] = {0, 4};    
 
     Run(generator, interval);
 }

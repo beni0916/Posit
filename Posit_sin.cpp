@@ -17,6 +17,7 @@ using namespace std;
     // /* |x| ~< pi/4 */
 	Posit64 limit{0.785398006439209};
 	if(fabs_x <= limit) return __kernel_sin(x, z, 0);
+	
 
     // /* sin(Inf or NaN) is NaN */
 	else if (x == NAR) return x-x;
@@ -36,9 +37,11 @@ using namespace std;
 }
 
 #endif /* _DOUBLE_IS_32BITS */
-
-// int main(){
-//     Posit64 value{-12.3634};
-// 	cout << "Input: " << value << "\n";
-//     cout << fixed << setprecision(16) << "Result: " << sin(value) << "\n";
-// }
+/*
+ int main(){
+     Posit64 value{12.3634};
+ 	cout << "Input: " << value << "\n";
+     cout << fixed << setprecision(16) << "Result: " << Posit_sin(value) << "\n";
+ }
+ */
+ //g++ -std=c++17 -o Result_sin Result_sin.cpp Posit_sin.cpp __kernel_sin.cpp __kernel_cos.cpp Posit_fabs.cpp Posit_rempio2.cpp Quire_qToP.cpp Quire_pToQ.cpp Quire_qMulAdd.cpp Quire_qSubQ.cpp Quire_qMulSub.cpp -lgmp -lmpfr

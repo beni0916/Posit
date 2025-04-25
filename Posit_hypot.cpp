@@ -108,6 +108,24 @@ using namespace std;
 }
 #endif
 
+/*
+#include <limits>
+#include <cmath>
+
+int main(void)
+{
+	double nan = std::nan("0");
+	double inf = std::numeric_limits<double>::infinity();
+	double max = 1e9;
+	double min = 1e-9;
+	
+	cout << fixed << setprecision(16) << "nan: " << Posit_asinPi(nan) << "\n";
+	cout << fixed << setprecision(16) << "inf: " << Posit_asinPi(inf) << "\n";
+	cout << fixed << setprecision(16) << "max: " << Posit_asinPi(max) << "\n";
+	cout << fixed << setprecision(16) << "min: " << Posit_asinPi(min) << "\n";
+}
+*/
+
 //int main(void)
 //{
 //	Posit64 a{-13}, b{14}, c{0};
