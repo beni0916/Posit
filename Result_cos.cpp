@@ -133,7 +133,7 @@ void Run(mt19937 generator, double *interval){
 
     for(int i = 0; i < 1000; i++){
         target = site(generator);                             
-        uniform_real_distribution<double> range(4.72, 6.28);  //2.36, 3.14  3.15, 4.93  interval[target], interval[target + 1]  3.15, 4.71 4.72, 6.28
+        uniform_real_distribution<double> range(interval[target], interval[target + 1]);  //2.36, 3.14  3.15, 4.93  interval[target], interval[target + 1]  3.15, 4.71 4.72, 6.28
         input = range(generator);
 
         num1 = MPFR(input);
