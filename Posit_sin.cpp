@@ -24,13 +24,21 @@ using namespace std;
 
     /* argument reduction needed */
 	else{
-		n = Posit_rempio2(x, y);
-		switch(n & 3) {
-			case 0: return  __kernel_sin(y[0], y[1], 1);
-			case 1: return  __kernel_cos(y[0], y[1]);
-			case 2: return -__kernel_sin(y[0], y[1], 1);
+		Posit64 pi_over2{1.5707963267948966192313216916398};
+		n = Posit_rempio2_sin(x, y);
+		//cout << n << endl;
+		switch(n)
+		{
+			case 0: 
+				return  __kernel_cos(pi_over2 - y[0], y[1]);
+			case 1: 
+				return  __kernel_sin(y[0], y[1], 0);
+			case 2: 
+				return  -__kernel_sin(-y[0], y[1], 0);
+			case 3:
+				return -__kernel_cos(pi_over2 + y[0], y[1]);
 			default:
-				return -__kernel_cos(y[0], y[1]);
+				return  __kernel_sin(y[0], y[1], 0);
 		}
 	}
 	

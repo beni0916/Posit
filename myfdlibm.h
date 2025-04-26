@@ -135,7 +135,8 @@ extern Quire64 Quire_qMulAdd(Quire64 x, Posit64 y, Posit64 z);
 extern Quire64 Quire_qMulSub(Quire64 x, Posit64 y, Posit64 z);
 extern Posit64 Quire_qToP(Quire64 x);
 
-extern __int32_t Posit_rempio2_new(Posit64 x, Posit64 *y);
+extern __int32_t Posit_rempio2_cos(Posit64 x, Posit64 *y);
+extern __int32_t Posit_rempio2_sin(Posit64 x, Posit64 *y);
 
 inline void getRegime(__int32_t ix, int *data){
     int r = 0, k = 0;                   //r紀錄regime bits代表的數值，k紀錄有幾個regime bits

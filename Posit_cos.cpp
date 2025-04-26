@@ -24,15 +24,19 @@ using namespace std;
     /* argument reduction needed */
 	else {
 
-	    n = Posit_rempio2_new(x, y);
+	    n = Posit_rempio2_cos(x, y);
 	    Posit64 pi_over2{1.5707963267948966192313216916398};
 	    //cout << n << endl;
 	    //cout << y[0] << endl << endl;
 	    switch(n) {
-		case 0: return  __kernel_sin(pi_over2 - y[0],y[1], 0);
-		case 1: return -__kernel_sin(y[0] - pi_over2,y[1], 0);
-		case 2: return -__kernel_cos(PI - y[0],y[1]);
-		case 3: return  __kernel_cos(y[0],y[1]);
+		case 0: 
+			return  __kernel_cos(y[0],y[1]);
+		case 1: 
+			return  __kernel_sin(pi_over2 - y[0], y[1], 0);
+		case 2: 
+			return -__kernel_sin(y[0] - pi_over2, y[1], 0);
+		case 3: 
+			return -__kernel_cos(PI - y[0], y[1]);
 		default:
 		        return  __kernel_cos(y[0],y[1]);
 	    }
