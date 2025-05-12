@@ -345,7 +345,7 @@ string toString(mpfr_t input){
     return num1;
 }
 
-string toString(Posit64 input){
+string toString(Posit64 input) {
     string num2;
     ostringstream out;
 
@@ -353,14 +353,26 @@ string toString(Posit64 input){
     num2 = out.str();
     int length = num2.length();
     size_t site = num2.find('.');
-    
-    int prec = length - site - 1;
-    while(prec > 18){
-        num2.pop_back();
-        prec--;
+
+    if (site != string::npos) { // 檢查是否有小數點
+        int prec = length - site - 1;
+        while (prec < 18) {
+            num2.push_back('0');
+            prec++;
+        }
+        while (prec > 18) {
+            num2.pop_back();
+            prec--;
+        }
+    } else {
+        num2 += ".";
+        for (int i = 0; i < 18; ++i) {
+            num2.push_back('0');
+        }
     }
-    out.str("");
-    
+
+    out.str(""); // 清空 ostringstream (雖然在這裡可能不是必要的)
+
     return num2;
 }
 
@@ -412,8 +424,8 @@ int main() {
                     IEEE.push_back(IEEE754_result);
                     POS.push_back(Posit_result);
                 }
-                std::cout << "IEEE RMSE:" << RMSE(IEEE) << std::endl;
-                std::cout << "POSIT RMSE:" << RMSE(POS) << std::endl;
+                std::cout << fixed  << setprecision(18) << "IEEE RMSE:" << RMSE(IEEE) << std::endl;
+                std::cout << fixed  << setprecision(18) << "POSIT RMSE:" << RMSE(POS) << std::endl;
 
                 // 使用 Posit64 版本的 hsvToRgb 進行轉換
                 unsigned char* rgbDataOutFloat = new unsigned char[width * height * 3];
