@@ -28,16 +28,31 @@ using namespace std;
 	    Posit64 pi_over2{1.5707963267948966192313216916398};
 	    //cout << n << endl;
 	    //cout << y[0] << endl << endl;
-	    switch(n) {
+	    
+	    switch(n) 
+	    {
 		case 0: 
+			if(y[0] > limit)
+	    			cout << y[0] << endl;
 			return  __kernel_cos(y[0],y[1]);
+		
 		case 1: 
+			if(pi_over2 - y[0] > limit)
+	    			cout << pi_over2 - y[0] << endl;
 			return  __kernel_sin(pi_over2 - y[0], y[1], 0);
+		
 		case 2: 
+			if(y[0] - pi_over2 > limit)
+	    			cout << y[0] - pi_over2 << endl;
 			return -__kernel_sin(y[0] - pi_over2, y[1], 0);
+			
 		case 3: 
+			if(PI - y[0] > limit)
+	    			cout << PI - y[0] << endl;
 			return -__kernel_cos(PI - y[0], y[1]);
 		default:
+			if(y[0] > limit)
+	    			cout << y[0] << endl;
 		        return  __kernel_cos(y[0],y[1]);
 	    }
 	}
