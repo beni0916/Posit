@@ -242,10 +242,10 @@ void rgbToHsvMpfrStb(int width, int height, const unsigned char* rgbData, mpfr_t
                 // 计算 H
                 mpfr_t& h = hsvData[(i * width + j) * 3 + 0];
                 mpfr_init2(h, prec);
-                if (mpfr_equal_p(maxVal, r)==0) {  // maxVal == r
+                if (mpfr_equal_p(maxVal, r)) {  // maxVal == r
                     mpfr_sub(temp1, g, b, MPFR_RNDN);
                     mpfr_div(h, temp1, delta, MPFR_RNDN);
-                } else if (mpfr_equal_p(maxVal, g)==0) { // maxVal == g
+                } else if (mpfr_equal_p(maxVal, g)) { // maxVal == g
                     mpfr_set_d(temp1, 2.0, MPFR_RNDN);
                     mpfr_sub(temp2, b, r, MPFR_RNDN);
                     mpfr_div(temp2, temp2, delta, MPFR_RNDN);
