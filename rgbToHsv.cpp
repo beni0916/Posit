@@ -53,7 +53,7 @@ std::string Difference(std::string& num1, std::string& num2) {
     
     int n1 = num1.length();
     int n2 = num2.length();
-    if(n2 != n1 || num1[0] != num2[0]) return "-1.0";
+    if(n2 != n1) return "-1.0";
 
     std::string str1 = num1;
     std::string str2 = num2;
@@ -424,8 +424,8 @@ int main() {
                     IEEE.push_back(IEEE754_result);
                     POS.push_back(Posit_result);
                 }
-                std::cout << fixed  << setprecision(18) << "IEEE RMSE:" << RMSE(IEEE) << std::endl;
-                std::cout << fixed  << setprecision(18) << "POSIT RMSE:" << RMSE(POS) << std::endl;
+                std::cout << fixed  << setprecision(50) << "IEEE RMSE:" << RMSE(IEEE) << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT RMSE:" << RMSE(POS) << std::endl;
 
                 // 使用 Posit64 版本的 hsvToRgb 進行轉換
                 unsigned char* rgbDataOutFloat = new unsigned char[width * height * 3];
