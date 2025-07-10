@@ -1,0 +1,4 @@
+[submodule "Posit"]
+	path = Posit
+	url = https://github.com/beni0916/Posit.git
+	branch = master
