@@ -336,44 +336,90 @@ void hsvToRgbPosit64Stb(int width, int height, const Posit64* hsvData, unsigned 
     }
 }
 
-string toString(mpfr_t input){
-    char buffer[20];
+std::string formatPositiveFloatString(const std::string& inputStr) {
+    std::string result = inputStr;
+    size_t dotPos = result.find('.');
 
-    mpfr_sprintf(buffer, "%.18Rf", input);
-    string num1(buffer);
-
-    return num1;
-}
-
-string toString(Posit64 input) {
-    string num2;
-    ostringstream out;
-
-    out << fixed << setprecision(21) << input;
-    num2 = out.str();
-    int length = num2.length();
-    size_t site = num2.find('.');
-
-    if (site != string::npos) { // 檢查是否有小數點
-        int prec = length - site - 1;
-        while (prec < 18) {
-            num2.push_back('0');
-            prec++;
-        }
-        while (prec > 18) {
-            num2.pop_back();
-            prec--;
-        }
+    // --- 處理小數點前部分 ---
+    std::string integerPart;
+    if (dotPos == std::string::npos) {
+        integerPart = result; // 如果沒有小數點，整個字串就是整數部分
     } else {
-        num2 += ".";
-        for (int i = 0; i < 18; ++i) {
-            num2.push_back('0');
-        }
+        integerPart = result.substr(0, dotPos); // 取得小數點前的部分
     }
 
-    out.str(""); // 清空 ostringstream (雖然在這裡可能不是必要的)
+    // 移除前導零，除非它就是 "0" (例如 "007" 變成 "7", "0" 保持 "0")
+    size_t firstDigit = integerPart.find_first_not_of('0');
+    if (firstDigit != std::string::npos) {
+        integerPart = integerPart.substr(firstDigit);
+    } else if (!integerPart.empty()) { // 處理全是零的情況，例如 "000"
+        integerPart = "0";
+    } else { // 處理空字串作為整數部分的情況 (例如輸入是 ".123" 或空字串)
+        integerPart = "0";
+    }
 
-    return num2;
+    // 補足小數點前到四位
+    if (integerPart.length() < 4) {
+        std::string padding(4 - integerPart.length(), '0');
+        integerPart = padding + integerPart;
+    }
+    // 如果 integerPart.length() > 4，保持原樣，不截斷
+
+    // --- 處理小數點後部分 ---
+    std::string decimalPart;
+    if (dotPos != std::string::npos) {
+        decimalPart = result.substr(dotPos + 1); // 取得小數點後的部分
+    }
+    // 如果 dotPos == std::string::npos，decimalPart 保持為空字串
+
+    // 補足或截斷小數點後到五十位
+    if (decimalPart.length() < 50) {
+        decimalPart.append(50 - decimalPart.length(), '0');
+    } else if (decimalPart.length() > 50) {
+        decimalPart.erase(50); // 從索引 50 開始移除，保留前 50 個字元
+    }
+
+    // --- 組合最終結果 ---
+    return integerPart + "." + decimalPart;
+}
+
+// 更新 toString(Posit64) 以處理其字串表示，確保小數點後有五十位
+string toString(Posit64 input) {
+    ostringstream out;
+    // 使用 long double 轉換以確保標準庫的格式化行為
+    // 這移除了手動補零的邏輯，讓 ostringstream 和 setprecision 完全控制格式
+    out << fixed << setprecision(50) << input; 
+
+    std::string result = out.str();
+
+    return formatPositiveFloatString(result);
+}
+
+// 更新 toString(float) 以處理其字串表示，確保小數點後有五十位
+string toString(float input) {
+    string numStr;
+    ostringstream out;
+    out << fixed << setprecision(50) << input; // 使用更高的精度
+    numStr = out.str();
+
+    // 根據需求，移除末尾零的邏輯將被移除
+    // 'fixed' 和 'setprecision(50)' 會自動確保小數點後有 50 位，並補零
+
+    return formatPositiveFloatString(numStr);
+}
+
+
+// MPFR 版本，修改為確保小數點後有五十位
+string toString(mpfr_t input){
+    // 使用足夠大的 buffer
+    char buffer[200]; // 根據需要的精度調整大小，例如 50 位數字 + 小數點 + 符號 + null 終止符
+    // mpfr_sprintf 使用 "%.50Rf" 會確保小數點後有 50 位，並補零
+    mpfr_sprintf(buffer, "%.50Rf", input); 
+    string num1(buffer);
+
+    // 根據需求，移除末尾零的邏輯將被移除
+
+    return formatPositiveFloatString(num1);
 }
 
 int main() {
@@ -414,13 +460,34 @@ int main() {
 
                 //將數值轉str並進行誤差運算
                 vector<double> IEEE, POS;
+                std::string filenameOnly = fs::path(filename).filename().string(); // 只取得檔案名稱
+                std::string filenameWithoutExt = getFilenameWithoutExtension(filenameOnly); // 取得不含副檔名的檔案名稱
+                // 創建一個新的文字檔案來儲存浮點數值
+                std::string outputTextFilename = "output/" + filenameWithoutExt + "_fp_values.txt";
+                std::ofstream outputFile(outputTextFilename);
+                if (!outputFile.is_open()) {
+                    std::cerr << "無法開啟浮點數輸出檔案: " << outputTextFilename << std::endl;
+                }
                 for (int i = 0; i < width * height * 3; i++) {
+                    outputFile << fixed  << setprecision(50) << "Pixel " << i << ":\n";
+                    outputFile << "  Posit O: " << hsvDataPosit64[i] << "\n";
                     std::string posit = toString(hsvDataPosit64[i]);
-                    std::string ieee = toString(hsvDataFloatPosit64[i]);
+                    std::string ieee = toString(hsvDataFloat[i]);
                     std::string mpfr = toString(hsvDataMpfr[i]);
+                    outputFile << "  MPFR: " << mpfr << "\n";
+                    outputFile << "  IEEE: " << ieee << "\n";
+                    outputFile << "  Posit: " << posit << "\n";
 
                     double Posit_result = stod(Difference(mpfr, posit));
                     double IEEE754_result = stod(Difference(mpfr, ieee));
+                    outputFile << "  IEEE d: " << IEEE754_result << "\n";
+                    outputFile << "  Posit d: " << Posit_result << "\n";
+                    if (Posit_result>IEEE754_result) {
+                        outputFile << "FFFFF"<< "\n";
+                    }else {
+                        outputFile << "TTTTT"<< "\n";
+                    }
+                    outputFile << "--------------------\n";
                     IEEE.push_back(IEEE754_result);
                     POS.push_back(Posit_result);
                 }
@@ -433,10 +500,6 @@ int main() {
 
                 unsigned char* rgbDataOutPosit64 = new unsigned char[width * height * 3];
                 hsvToRgbPosit64Stb(width, height, hsvDataPosit64, rgbDataOutPosit64);
-
-                // 產生輸出檔案名稱
-                std::string filenameOnly = fs::path(filename).filename().string(); // 只取得檔案名稱
-                std::string filenameWithoutExt = getFilenameWithoutExtension(filenameOnly); // 取得不含副檔名的檔案名稱
 
                 std::string outputFilenameFloat = "output/" + filenameWithoutExt + "_hsv_float." + extension;
                 stbi_write_png(outputFilenameFloat.c_str(), width, height, 3, rgbDataOutFloat, width * 3);

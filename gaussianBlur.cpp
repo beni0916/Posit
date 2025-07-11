@@ -12,18 +12,19 @@
 #include <string>
 #include <iomanip> // for std::setprecision
 #include <bits/stdc++.h>
+#include <fstream>
 
 namespace fs = std::filesystem;
 using namespace std;
 
 // 函式：生成一維高斯核心
-std::vector<float> generateGaussianKernel(int radius, float sigma) {
+std::vector<double> generateGaussianKernel(int radius, float sigma) {
     int kernelSize = 2 * radius + 1;
-    std::vector<float> kernel(kernelSize);
-    float sum = 0.0f;
+    std::vector<double> kernel(kernelSize);
+    double sum = 0.0f;
 
     for (int i = 0; i < kernelSize; ++i) {
-        float x = i - radius;
+        double x = i - radius;
         kernel[i] = std::exp(-(x * x) / (2 * sigma * sigma));
         sum += kernel[i];
     }
@@ -36,18 +37,18 @@ std::vector<float> generateGaussianKernel(int radius, float sigma) {
 }
 
 // 函式：應用高斯模糊 (水平方向)
-void applyGaussianBlurHorizontal(int width, int height, const unsigned char* inputData, float* outputData, const std::vector<float>& kernel, int channels) {
+void applyGaussianBlurHorizontal(int width, int height, const double* inputData, double* outputData, const std::vector<double>& kernel, int channels) {
     int radius = (kernel.size() - 1) / 2;
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             for (int c = 0; c < channels; ++c) {
-                float sum = 0.0f;
+                double sum = 0.0f;
                 for (int k = -radius; k <= radius; ++k) {
                     int pixelX = x + k;
                     if (pixelX < 0) pixelX = 0; // 邊界處理：複製邊界像素
                     if (pixelX >= width) pixelX = width - 1; // 邊界處理：複製邊界像素
 
-                    sum += (static_cast<float>(inputData[(y * width + pixelX) * channels + c]) / 255.0f) * kernel[k + radius];
+                    sum += inputData[(y * width + pixelX) * channels + c] * kernel[k + radius];
                 }
                 outputData[(y * width + x) * channels + c] = sum;
             }
@@ -56,12 +57,12 @@ void applyGaussianBlurHorizontal(int width, int height, const unsigned char* inp
 }
 
 // 函式：應用高斯模糊 (垂直方向)
-void applyGaussianBlurVertical(int width, int height, const float* inputData, float* outputData, const std::vector<float>& kernel, int channels) {
+void applyGaussianBlurVertical(int width, int height, const double* inputData, double* outputData, const std::vector<double>& kernel, int channels) {
     int radius = (kernel.size() - 1) / 2;
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             for (int c = 0; c < channels; ++c) {
-                float sum = 0.0f;
+                double sum = 0.0f;
                 for (int k = -radius; k <= radius; ++k) {
                     int pixelY = y + k;
                     if (pixelY < 0) pixelY = 0; // 邊界處理：複製邊界像素
@@ -75,26 +76,29 @@ void applyGaussianBlurVertical(int width, int height, const float* inputData, fl
     }
 }
 
-// 高斯模糊主函式 (Float 版本)
-void gaussianBlurFloatStb(int width, int height, const unsigned char* rgbData, unsigned char* blurredRgbData, double sigma, int radius) {
+// 高斯模糊主函式 (Float 版本) - 回傳浮點數結果
+double* gaussianBlurFloatStb(int width, int height, const unsigned char* rgbData, double sigma, int radius) {
     int channels = 3; // RGB 影像有 3 個通道
-    std::vector<float> kernel = generateGaussianKernel(radius, sigma);
+    std::vector<double> kernel = generateGaussianKernel(radius, sigma);
 
-    float* tempHorizontal = new float[width * height * channels];
-    float* tempVertical = new float[width * height * channels];
+    double* normalizedRgbData = new double[width * height * channels];
+    for (int i = 0; i < width * height * channels; ++i) {
+        normalizedRgbData[i] = static_cast<double>(rgbData[i]) / 255.0f;
+    }
+
+    double* tempHorizontal = new double[width * height * channels];
+    // 直接在函式內部建立 tempVertical，並回傳
+    double* tempVertical = new double[width * height * channels];
 
     // 先進行水平模糊
-    applyGaussianBlurHorizontal(width, height, rgbData, tempHorizontal, kernel, channels);
+    applyGaussianBlurHorizontal(width, height, normalizedRgbData, tempHorizontal, kernel, channels);
     // 再進行垂直模糊
     applyGaussianBlurVertical(width, height, tempHorizontal, tempVertical, kernel, channels);
 
-    // 將結果轉換回 unsigned char (0-255)
-    for (int i = 0; i < width * height * channels; ++i) {
-        blurredRgbData[i] = static_cast<unsigned char>(std::min(255.0f, std::max(0.0f, tempVertical[i] * 255.0f)));
-    }
-
+    delete[] normalizedRgbData;
     delete[] tempHorizontal;
-    delete[] tempVertical;
+    // 不在此處轉換回 unsigned char，而是直接回傳浮點數結果
+    return tempVertical;
 }
 
 // 函式：生成一維高斯核心
@@ -156,12 +160,13 @@ void applyGaussianBlurVerticalPosit(int width, int height, const Posit64* inputD
     }
 }
 
-// 高斯模糊主函式 (Float 版本)
-void gaussianBlurPosit64Stb(int width, int height, const unsigned char* rgbData, unsigned char* blurredRgbData, double sigma, int radius) {
+// 高斯模糊主函式 (Posit64 版本) - 回傳 Posit64 陣列結果
+Posit64* gaussianBlurPosit64Stb(int width, int height, const unsigned char* rgbData, double sigma, int radius) {
     int channels = 3; // RGB 影像有 3 個通道
     std::vector<Posit64> kernel = generateGaussianKernelPosit(radius, sigma);
 
     Posit64* tempHorizontal = new Posit64[width * height * channels];
+    // 直接在函式內部建立 tempVertical，並回傳
     Posit64* tempVertical = new Posit64[width * height * channels];
 
     // 先進行水平模糊
@@ -169,21 +174,10 @@ void gaussianBlurPosit64Stb(int width, int height, const unsigned char* rgbData,
     // 再進行垂直模糊
     applyGaussianBlurVerticalPosit(width, height, tempHorizontal, tempVertical, kernel, channels);
 
-    // 將結果轉換回 unsigned char (0-255)
-    for (int i = 0; i < width * height * channels; ++i) {
-        blurredRgbData[i] = static_cast<unsigned char>((int)Posit_floor(tempVertical[i] * Posit64(255.0)));
-    }
-
     delete[] tempHorizontal;
-    delete[] tempVertical;
+    // 不在此處轉換回 unsigned char，而是直接回傳 Posit64 結果
+    return tempVertical;
 }
-
-#include <gmp.h>
-#include <mpfr.h>
-#include <iostream>
-#include <vector>
-#include <cmath> // For std::min, std::max if needed for conversions
-#include <iomanip> // For std::setprecision, if needed for debugging output
 
 // 函式：生成一維高斯核心 (MPFR 版本)
 std::vector<mpfr_t> generateGaussianKernelMpfr(int radius, mpfr_t sigma, mpfr_prec_t prec) {
@@ -294,10 +288,8 @@ void applyGaussianBlurVerticalMpfr(int width, int height, const mpfr_t* inputDat
     mpfr_clear(temp_val);
 }
 
-// 高斯模糊主函式 (MPFR 版本)
-// rgbData: 輸入原始的 unsigned char 影像資料
-// blurredRgbData: 輸出模糊後的 unsigned char 影像資料
-void gaussianBlurMpfrStb(int width, int height, const unsigned char* rgbData, unsigned char* blurredRgbData, double sigma_double, int radius) {
+// 高斯模糊主函式 (MPFR 版本) - 回傳 MPFR 陣列結果
+mpfr_t* gaussianBlurMpfrStb(int width, int height, const unsigned char* rgbData, double sigma_double, int radius) {
     mpfr_prec_t prec = 256;
     int channels = 3; // RGB 影像有 3 個通道
 
@@ -324,6 +316,7 @@ void gaussianBlurMpfrStb(int width, int height, const unsigned char* rgbData, un
 
     // 3. 準備中間結果的 MPFR 陣列
     mpfr_t* tempHorizontalMpfr = new mpfr_t[width * height * channels];
+    // 直接在函式內部建立 tempVerticalMpfr，並回傳
     mpfr_t* tempVerticalMpfr = new mpfr_t[width * height * channels];
 
     // 初始化中間結果的 mpfr_t 元素
@@ -337,30 +330,24 @@ void gaussianBlurMpfrStb(int width, int height, const unsigned char* rgbData, un
     // 5. 再進行垂直模糊
     applyGaussianBlurVerticalMpfr(width, height, tempHorizontalMpfr, tempVerticalMpfr, kernel, channels, prec);
 
-    // 6. 將結果轉換回 unsigned char (0-255)
-    for (int i = 0; i < width * height * channels; ++i) {
-        // 從 MPFR 轉換回 double，然後乘以 255
-        double val = mpfr_get_d(tempVerticalMpfr[i], MPFR_RNDN) * 255.0;
-        // 飽和處理並轉換為 unsigned char
-        blurredRgbData[i] = static_cast<unsigned char>(std::min(255.0, std::max(0.0, val)));
-    }
-
     // 7. 清除所有 MPFR 變數和陣列
     mpfr_clear(sigma_mpfr);
 
     for (int i = 0; i < width * height * channels; ++i) {
         mpfr_clear(inputMpfrData[i]);
         mpfr_clear(tempHorizontalMpfr[i]);
-        mpfr_clear(tempVerticalMpfr[i]);
+        // tempVerticalMpfr 將被回傳，在呼叫者處清除
     }
     delete[] inputMpfrData;
     delete[] tempHorizontalMpfr;
-    delete[] tempVerticalMpfr;
 
     // 清除 kernel 中的 mpfr_t
     for (size_t i = 0; i < kernel.size(); ++i) {
         mpfr_clear(kernel[i]);
     }
+    
+    // 回傳 MPFR 浮點數結果
+    return tempVerticalMpfr;
 }
 
 
@@ -401,25 +388,61 @@ std::string Difference(std::string& num1, std::string& num2) {
     
     int n1 = num1.length();
     int n2 = num2.length();
-    if(n2 != n1) return "-1.0";
+    if(n2 != n1) return "-1.0"; // 如果長度不同，表示有問題，返回錯誤值
 
     std::string str1 = num1;
     std::string str2 = num2;
-    if(str1 < str2) str1.swap(str2);
-    
-    reverse(str1.begin(), str1.end());
-    reverse(str2.begin(), str2.end());
-    
+    // 確保 str1 >= str2，方便減法
+    if(str1.compare(str2) < 0) str1.swap(str2); // 使用 compare 而不是 < 比較整個字串
 
+    // 處理小數點，如果有的話
+    size_t dotPos1 = str1.find('.');
+    size_t dotPos2 = str2.find('.');
+
+    // 如果只有一個有小數點或小數點位置不同，需要進一步處理確保對齊
+    if (dotPos1 != std::string::npos || dotPos2 != std::string::npos) {
+        // 找到最長的小數部分
+        size_t maxLenAfterDot = 0;
+        if (dotPos1 != std::string::npos) maxLenAfterDot = std::max(maxLenAfterDot, str1.length() - 1 - dotPos1);
+        if (dotPos2 != std::string::npos) maxLenAfterDot = std::max(maxLenAfterDot, str2.length() - 1 - dotPos2);
+
+        // 補齊小數點後的零
+        if (dotPos1 == std::string::npos) str1 += ".";
+        if (dotPos2 == std::string::npos) str2 += ".";
+
+        while (str1.length() - 1 - str1.find('.') < maxLenAfterDot) str1 += '0';
+        while (str2.length() - 1 - str2.find('.') < maxLenAfterDot) str2 += '0';
+    }
+
+    // 補齊整數部分的零 (如果長度不一致)
+    size_t maxLenBeforeDot = 0;
+    if (dotPos1 != std::string::npos) maxLenBeforeDot = std::max(maxLenBeforeDot, dotPos1);
+    else maxLenBeforeDot = std::max(maxLenBeforeDot, str1.length());
+    
+    if (dotPos2 != std::string::npos) maxLenBeforeDot = std::max(maxLenBeforeDot, dotPos2);
+    else maxLenBeforeDot = std::max(maxLenBeforeDot, str2.length());
+
+    std::string paddedStr1 = std::string(maxLenBeforeDot - (dotPos1 == std::string::npos ? str1.length() : dotPos1), '0') + str1;
+    std::string paddedStr2 = std::string(maxLenBeforeDot - (dotPos2 == std::string::npos ? str2.length() : dotPos2), '0') + str2;
+
+    // 現在確保字串總長度相同，並處理負數情況 (儘管我們已經保證 str1 >= str2)
+    // 這裡只是為了一般化，但對於 RMSE 的絕對差值，可以直接用 str1 - str2
+    // 再次檢查長度，確保減法時索引不會越界
+    n1 = paddedStr1.length();
+    n2 = paddedStr2.length();
+    if(n1 != n2) { /* 這是個內部錯誤，表示補零邏輯有問題 */ return "-2.0"; }
+
+    reverse(paddedStr1.begin(), paddedStr1.end());
+    reverse(paddedStr2.begin(), paddedStr2.end());
+    
     int carry = 0;
-
-    for (int i = 0; i < n2; i++) {
-        if(str1[i] == '.'){
+    for (int i = 0; i < n1; i++) { // 現在 n1 == n2
+        if(paddedStr1[i] == '.'){
             result.push_back('.');
             continue;
         }
 
-        int sub = ((str1[i] - '0') - (str2[i] - '0') - carry);
+        int sub = ((paddedStr1[i] - '0') - (paddedStr2[i] - '0') - carry);
 
         if (sub < 0) {
             sub += 10;
@@ -427,72 +450,121 @@ std::string Difference(std::string& num1, std::string& num2) {
         } else {
             carry = 0;
         }
-
         result.push_back(sub + '0');
     }
 
-    for (int i = n2; i < n1; i++) {
-        int sub = ((str1[i] - '0') - carry);
-
-        if (sub < 0) {
-            sub += 10;
-            carry = 1;
-        } else {
-            carry = 0;
-        }
-
-        result.push_back(sub + '0');
-    }
-
+    // 移除前導零 (如果差值是小數，不移除小數點前的零)
     reverse(result.begin(), result.end());
 
-    return result;
-}
+    size_t first_digit = result.find_first_not_of('0');
+    size_t dot_pos_result = result.find('.');
 
-string toString(mpfr_t input){
-    char buffer[20];
-
-    mpfr_sprintf(buffer, "%.18Rf", input);
-    string num1(buffer);
-
-    return num1;
-}
-
-string toString(Posit64 input) {
-    string num2;
-    ostringstream out;
-
-    out << fixed << setprecision(21) << input;
-    num2 = out.str();
-    int length = num2.length();
-    size_t site = num2.find('.');
-
-    if (site != string::npos) { // 檢查是否有小數點
-        int prec = length - site - 1;
-        while (prec < 18) {
-            num2.push_back('0');
-            prec++;
-        }
-        while (prec > 18) {
-            num2.pop_back();
-            prec--;
-        }
+    if (first_digit == std::string::npos) { // All zeros
+        return "0.0";
+    } else if (first_digit > dot_pos_result && dot_pos_result != std::string::npos) { // e.g., 00.123
+        return "0" + result.substr(dot_pos_result);
+    } else if (first_digit == dot_pos_result && dot_pos_result != std::string::npos) { // e.g., .123 -> 0.123
+        return "0" + result.substr(first_digit);
     } else {
-        num2 += ".";
-        for (int i = 0; i < 18; ++i) {
-            num2.push_back('0');
-        }
+        return result.substr(first_digit);
+    }
+}
+
+std::string formatPositiveFloatString(const std::string& inputStr) {
+    std::string result = inputStr;
+    size_t dotPos = result.find('.');
+
+    // --- 處理小數點前部分 ---
+    std::string integerPart;
+    if (dotPos == std::string::npos) {
+        integerPart = result; // 如果沒有小數點，整個字串就是整數部分
+    } else {
+        integerPart = result.substr(0, dotPos); // 取得小數點前的部分
     }
 
-    out.str(""); // 清空 ostringstream (雖然在這裡可能不是必要的)
+    // 移除前導零，除非它就是 "0" (例如 "007" 變成 "7", "0" 保持 "0")
+    size_t firstDigit = integerPart.find_first_not_of('0');
+    if (firstDigit != std::string::npos) {
+        integerPart = integerPart.substr(firstDigit);
+    } else if (!integerPart.empty()) { // 處理全是零的情況，例如 "000"
+        integerPart = "0";
+    } else { // 處理空字串作為整數部分的情況 (例如輸入是 ".123" 或空字串)
+        integerPart = "0";
+    }
 
-    return num2;
+    // 補足小數點前到四位
+    if (integerPart.length() < 4) {
+        std::string padding(4 - integerPart.length(), '0');
+        integerPart = padding + integerPart;
+    }
+    // 如果 integerPart.length() > 4，保持原樣，不截斷
+
+    // --- 處理小數點後部分 ---
+    std::string decimalPart;
+    if (dotPos != std::string::npos) {
+        decimalPart = result.substr(dotPos + 1); // 取得小數點後的部分
+    }
+    // 如果 dotPos == std::string::npos，decimalPart 保持為空字串
+
+    // 補足或截斷小數點後到五十位
+    if (decimalPart.length() < 50) {
+        decimalPart.append(50 - decimalPart.length(), '0');
+    } else if (decimalPart.length() > 50) {
+        decimalPart.erase(50); // 從索引 50 開始移除，保留前 50 個字元
+    }
+
+    // --- 組合最終結果 ---
+    return integerPart + "." + decimalPart;
+}
+
+// 更新 toString(Posit64) 以處理其字串表示，確保小數點後有五十位
+string toString(Posit64 input) {
+    ostringstream out;
+    // 使用 long double 轉換以確保標準庫的格式化行為
+    // 這移除了手動補零的邏輯，讓 ostringstream 和 setprecision 完全控制格式
+    out << fixed << setprecision(50) << input; 
+
+    std::string result = out.str();
+
+    return formatPositiveFloatString(result);
+}
+
+// 更新 toString(float) 以處理其字串表示，確保小數點後有五十位
+string toString(double input) {
+    string numStr;
+    ostringstream out;
+    out << fixed << setprecision(50) << input; // 使用更高的精度
+    numStr = out.str();
+
+    // 根據需求，移除末尾零的邏輯將被移除
+    // 'fixed' 和 'setprecision(50)' 會自動確保小數點後有 50 位，並補零
+
+    return formatPositiveFloatString(numStr);
+}
+
+
+// MPFR 版本，修改為確保小數點後有五十位
+string toString(mpfr_t input){
+    // 使用足夠大的 buffer
+    char buffer[200]; // 根據需要的精度調整大小，例如 50 位數字 + 小數點 + 符號 + null 終止符
+    // mpfr_sprintf 使用 "%.50Rf" 會確保小數點後有 50 位，並補零
+    mpfr_sprintf(buffer, "%.50Rf", input); 
+    string num1(buffer);
+
+    // 根據需求，移除末尾零的邏輯將被移除
+
+    return formatPositiveFloatString(num1);
 }
 
 int main() {
     std::string folderPath = "testImg";
     double sigma = 1.0; // 高斯模糊的標準差
     int radius = 2;     // 高斯核心的半徑 (例如，半徑為 2 會生成 5x5 的核心)
+
+    // 確保 output 資料夾存在
+    if (!fs::exists("output")) {
+        fs::create_directory("output");
+    }
 
     for (const auto& entry : fs::directory_iterator(folderPath)) {
         if (fs::is_regular_file(entry)) {
@@ -509,50 +581,91 @@ int main() {
 
                 std::cout << "處理影像: " << filename << ", 寬度: " << width << ", 高度: " << height << std::endl;
 
-                // 浮點數處理 - 高斯模糊
-                unsigned char* blurredRgbDataFloat = new unsigned char[width * height * 3];
-                gaussianBlurFloatStb(width, height, rgbData, blurredRgbDataFloat, sigma, radius);
+                // ***** 獲取不同精度的高斯模糊浮點數結果 *****
+                double* blurredFloatResult = gaussianBlurFloatStb(width, height, rgbData, sigma, radius);
+                Posit64* blurredPosit64Result = gaussianBlurPosit64Stb(width, height, rgbData, sigma, radius);
+                mpfr_t* blurredMpfrResult = gaussianBlurMpfrStb(width, height, rgbData, sigma, radius);
 
-                // Posit64 處理 
-                unsigned char* blurredRgbDataPosit64 = new unsigned char[width * height * 3];
-                gaussianBlurPosit64Stb(width, height, rgbData, blurredRgbDataPosit64, sigma, radius);
-
-                // MPFR 處理
-                unsigned char* blurredRgbDataMpfr = new unsigned char[width * height * 3];
-                gaussianBlurMpfrStb(width, height, rgbData, blurredRgbDataMpfr, sigma, radius);
-
-                //將數值轉str並進行誤差運算
-                vector<double> IEEE, POS;
-                for (int i = 0; i < width * height * 3; i++) {
-                    std::string posit = toString(blurredRgbDataFloat[i]);
-                    std::string ieee = toString(blurredRgbDataPosit64[i]);
-                    std::string mpfr = toString(blurredRgbDataMpfr[i]);
-
-                    double Posit_result = stod(Difference(mpfr, posit));
-                    double IEEE754_result = stod(Difference(mpfr, ieee));
-                    IEEE.push_back(IEEE754_result);
-                    POS.push_back(Posit_result);
-                }
-                std::cout << fixed  << setprecision(50) << "IEEE RMSE:" << RMSE(IEEE) << std::endl;
-                std::cout << fixed  << setprecision(50) << "POSIT RMSE:" << RMSE(POS) << std::endl;
-
-                // 產生輸出檔案名稱
+                // 將數值轉str並進行誤差運算 (在浮點數層級)
+                vector<double> IEEE_RMSE_vals, POS_RMSE_vals;
                 std::string filenameOnly = fs::path(filename).filename().string(); // 只取得檔案名稱
                 std::string filenameWithoutExt = getFilenameWithoutExtension(filenameOnly); // 取得不含副檔名的檔案名稱
+                // 創建一個新的文字檔案來儲存浮點數值
+                std::string outputTextFilename = "output/" + filenameWithoutExt + "_fp_values.txt";
+                std::ofstream outputFile(outputTextFilename);
+                if (!outputFile.is_open()) {
+                    std::cerr << "無法開啟浮點數輸出檔案: " << outputTextFilename << std::endl;
+                }
 
-                std::string outputFilenameFloat = "output/" + filenameWithoutExt + "_hsv_float." + extension;
+                for (int i = 0; i < width * height * 3; i++) {
+                    std::string ieeeStr = toString(blurredFloatResult[i]);
+                    std::string positStr = toString(blurredPosit64Result[i]);
+                    std::string mpfrStr = toString(blurredMpfrResult[i]);
+
+                    // 將結果寫入檔案
+                    outputFile << "Pixel " << i << ":\n";
+                    outputFile << "  MPFR: " << mpfrStr << "\n";
+                    outputFile << "  IEEE: " << ieeeStr << "\n";
+                    outputFile << "  Posit: " << positStr << "\n";
+
+                    double Posit_result_diff = stod(Difference(mpfrStr, positStr));
+                    double IEEE754_result_diff = stod(Difference(mpfrStr, ieeeStr));
+
+                    outputFile << "  IEEE d: " << IEEE754_result_diff << "\n";
+                    outputFile << "  Posit d: " << Posit_result_diff << "\n";
+                    outputFile << "--------------------\n";
+
+                    IEEE_RMSE_vals.push_back(IEEE754_result_diff);
+                    POS_RMSE_vals.push_back(Posit_result_diff);
+                }
+                outputFile.close(); // 關閉浮點數結果檔案
+                std::cout << "浮點數結果已寫入: " << outputTextFilename << std::endl;
+
+                // ***** 在將浮點數結果轉換回 0-255 之前，先計算 RMSE *****
+                std::cout << fixed  << setprecision(50) << "IEEE RMSE (double vs MPFR):" << RMSE(IEEE_RMSE_vals) << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT RMSE (Posit64 vs MPFR):" << RMSE(POS_RMSE_vals) << std::endl;
+
+                // ***** 將浮點數結果轉換回 0-255 的 unsigned char 陣列，以便儲存為圖像 *****
+                unsigned char* blurredRgbDataFloat = new unsigned char[width * height * 3];
+                unsigned char* blurredRgbDataPosit64 = new unsigned char[width * height * 3];
+                unsigned char* blurredRgbDataMpfr = new unsigned char[width * height * 3]; // 用於儲存 MPFR 結果量化後的圖像
+
+                for (int i = 0; i < width * height * 3; ++i) {
+                    // 將 float 結果轉換回 unsigned char (0-255)
+                    blurredRgbDataFloat[i] = static_cast<unsigned char>(std::min(255.0, std::max(0.0, blurredFloatResult[i] * 255.0)));
+                    // 將 Posit64 結果轉換回 unsigned char (0-255)
+                    blurredRgbDataPosit64[i] = static_cast<unsigned char>((int)Posit_floor(blurredPosit64Result[i] * Posit64(255.0)));
+                    // 將 MPFR 結果轉換回 unsigned char (0-255)
+                    blurredRgbDataMpfr[i] = static_cast<unsigned char>(std::min(255.0, std::max(0.0, mpfr_get_d(blurredMpfrResult[i], MPFR_RNDN) * 255.0)));
+                }
+
+                // 產生輸出影像檔案名稱並儲存
+                std::string outputFilenameFloat = "output/" + filenameWithoutExt + "_blurred_float." + extension;
                 stbi_write_png(outputFilenameFloat.c_str(), width, height, 3, blurredRgbDataFloat, width * 3);
 
-                std::string outputFilenamePosit64 = "output/" + filenameWithoutExt + "_hsv_Posit64." + extension;
+                std::string outputFilenamePosit64 = "output/" + filenameWithoutExt + "_blurred_Posit64." + extension;
                 stbi_write_png(outputFilenamePosit64.c_str(), width, height, 3, blurredRgbDataPosit64, width * 3);
+                
+                std::string outputFilenameMpfr = "output/" + filenameWithoutExt + "_blurred_Mpfr." + extension;
+                stbi_write_png(outputFilenameMpfr.c_str(), width, height, 3, blurredRgbDataMpfr, width * 3);
 
+
+                // ***** 記憶體釋放 *****
                 stbi_image_free(rgbData);
+                delete[] blurredFloatResult;
+                delete[] blurredPosit64Result;
+                // MPFR 陣列需要逐個清除 mpfr_t 元素，然後再刪除陣列本身
+                for (int i = 0; i < width * height * 3; ++i) {
+                    mpfr_clear(blurredMpfrResult[i]);
+                }
+                delete[] blurredMpfrResult;
                 delete[] blurredRgbDataFloat;
                 delete[] blurredRgbDataPosit64;
                 delete[] blurredRgbDataMpfr;
 
-                std::cout << "浮點數 HSV 影像已儲存為: " << outputFilenameFloat << std::endl;
-                std::cout << "Posit64 HSV 影像已儲存為: " << outputFilenamePosit64 << std::endl;
+                std::cout << "浮點數高斯模糊影像已儲存為: " << outputFilenameFloat << std::endl;
+                std::cout << "Posit64 高斯模糊影像已儲存為: " << outputFilenamePosit64 << std::endl;
+                std::cout << "MPFR 高斯模糊影像已儲存為: " << outputFilenameMpfr << std::endl;
             }
         }
     }
