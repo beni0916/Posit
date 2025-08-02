@@ -1,105 +1,7 @@
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb/stb_image_write.h"
-#include "Posit/myfdlibm.h" // 假設你的 Posit 函式庫在這裡
-#include <gmp.h>
-#include <mpfr.h>
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <filesystem>
-#include <string>
-#include <iomanip> // for std::setprecision
-#include <bits/stdc++.h>
+#include "testTool.h"
 
 namespace fs = std::filesystem;
 using namespace std;
-
-// 取得檔案名稱（不含副檔名）的函數
-std::string getFilenameWithoutExtension(const std::string& filename) {
-    size_t dotPos = filename.find_last_of('.');
-    if (dotPos != std::string::npos) {
-        return filename.substr(0, dotPos);
-    }
-    return filename;
-}
-
-// 取得檔案副檔名的函數 (轉為小寫)
-std::string getFileExtension(const std::string& filename) {
-    size_t dotPos = filename.find_last_of('.');
-    if (dotPos != std::string::npos) {
-        std::string extension = filename.substr(dotPos + 1);
-        for (char& c : extension) {
-            c = std::tolower(c);
-        }
-        return extension;
-    }
-    return "";
-}
-
-double RMSE(const std::vector<double> &vec) {
-    if (vec.empty()) {
-        return 0.0; // 或者拋出例外，視你的需求而定
-    }
-
-    double sumOfSquares = std::inner_product(vec.begin(), vec.end(), vec.begin(), 0.0);
-    double meanSquareError = sumOfSquares / vec.size();
-    return std::sqrt(meanSquareError);
-}
-
-std::string Difference(std::string& num1, std::string& num2) {
-    std::string result = "";
-    
-    int n1 = num1.length();
-    int n2 = num2.length();
-    if(n2 != n1) return "-1.0";
-
-    std::string str1 = num1;
-    std::string str2 = num2;
-    if(str1 < str2) str1.swap(str2);
-    
-    reverse(str1.begin(), str1.end());
-    reverse(str2.begin(), str2.end());
-    
-
-    int carry = 0;
-
-    for (int i = 0; i < n2; i++) {
-        if(str1[i] == '.'){
-            result.push_back('.');
-            continue;
-        }
-
-        int sub = ((str1[i] - '0') - (str2[i] - '0') - carry);
-
-        if (sub < 0) {
-            sub += 10;
-            carry = 1;
-        } else {
-            carry = 0;
-        }
-
-        result.push_back(sub + '0');
-    }
-
-    for (int i = n2; i < n1; i++) {
-        int sub = ((str1[i] - '0') - carry);
-
-        if (sub < 0) {
-            sub += 10;
-            carry = 1;
-        } else {
-            carry = 0;
-        }
-
-        result.push_back(sub + '0');
-    }
-
-    reverse(result.begin(), result.end());
-
-    return result;
-}
 
 // RGB to HSV 轉換函數 (浮點數版本)
 void rgbToHsvFloatStb(int width, int height, const unsigned char* rgbData, float* hsvData) {
@@ -336,92 +238,6 @@ void hsvToRgbPosit64Stb(int width, int height, const Posit64* hsvData, unsigned 
     }
 }
 
-std::string formatPositiveFloatString(const std::string& inputStr) {
-    std::string result = inputStr;
-    size_t dotPos = result.find('.');
-
-    // --- 處理小數點前部分 ---
-    std::string integerPart;
-    if (dotPos == std::string::npos) {
-        integerPart = result; // 如果沒有小數點，整個字串就是整數部分
-    } else {
-        integerPart = result.substr(0, dotPos); // 取得小數點前的部分
-    }
-
-    // 移除前導零，除非它就是 "0" (例如 "007" 變成 "7", "0" 保持 "0")
-    size_t firstDigit = integerPart.find_first_not_of('0');
-    if (firstDigit != std::string::npos) {
-        integerPart = integerPart.substr(firstDigit);
-    } else if (!integerPart.empty()) { // 處理全是零的情況，例如 "000"
-        integerPart = "0";
-    } else { // 處理空字串作為整數部分的情況 (例如輸入是 ".123" 或空字串)
-        integerPart = "0";
-    }
-
-    // 補足小數點前到四位
-    if (integerPart.length() < 4) {
-        std::string padding(4 - integerPart.length(), '0');
-        integerPart = padding + integerPart;
-    }
-    // 如果 integerPart.length() > 4，保持原樣，不截斷
-
-    // --- 處理小數點後部分 ---
-    std::string decimalPart;
-    if (dotPos != std::string::npos) {
-        decimalPart = result.substr(dotPos + 1); // 取得小數點後的部分
-    }
-    // 如果 dotPos == std::string::npos，decimalPart 保持為空字串
-
-    // 補足或截斷小數點後到五十位
-    if (decimalPart.length() < 50) {
-        decimalPart.append(50 - decimalPart.length(), '0');
-    } else if (decimalPart.length() > 50) {
-        decimalPart.erase(50); // 從索引 50 開始移除，保留前 50 個字元
-    }
-
-    // --- 組合最終結果 ---
-    return integerPart + "." + decimalPart;
-}
-
-// 更新 toString(Posit64) 以處理其字串表示，確保小數點後有五十位
-string toString(Posit64 input) {
-    ostringstream out;
-    // 使用 long double 轉換以確保標準庫的格式化行為
-    // 這移除了手動補零的邏輯，讓 ostringstream 和 setprecision 完全控制格式
-    out << fixed << setprecision(50) << input; 
-
-    std::string result = out.str();
-
-    return formatPositiveFloatString(result);
-}
-
-// 更新 toString(float) 以處理其字串表示，確保小數點後有五十位
-string toString(float input) {
-    string numStr;
-    ostringstream out;
-    out << fixed << setprecision(50) << input; // 使用更高的精度
-    numStr = out.str();
-
-    // 根據需求，移除末尾零的邏輯將被移除
-    // 'fixed' 和 'setprecision(50)' 會自動確保小數點後有 50 位，並補零
-
-    return formatPositiveFloatString(numStr);
-}
-
-
-// MPFR 版本，修改為確保小數點後有五十位
-string toString(mpfr_t input){
-    // 使用足夠大的 buffer
-    char buffer[200]; // 根據需要的精度調整大小，例如 50 位數字 + 小數點 + 符號 + null 終止符
-    // mpfr_sprintf 使用 "%.50Rf" 會確保小數點後有 50 位，並補零
-    mpfr_sprintf(buffer, "%.50Rf", input); 
-    string num1(buffer);
-
-    // 根據需求，移除末尾零的邏輯將被移除
-
-    return formatPositiveFloatString(num1);
-}
-
 int main() {
     std::string folderPath = "testImg";
 
@@ -478,8 +294,8 @@ int main() {
                     outputFile << "  IEEE: " << ieee << "\n";
                     outputFile << "  Posit: " << posit << "\n";
 
-                    double Posit_result = stod(Difference(mpfr, posit));
-                    double IEEE754_result = stod(Difference(mpfr, ieee));
+                    double Posit_result = stod(difference(mpfr, posit));
+                    double IEEE754_result = stod(difference(mpfr, ieee));
                     outputFile << "  IEEE d: " << IEEE754_result << "\n";
                     outputFile << "  Posit d: " << Posit_result << "\n";
                     if (Posit_result>IEEE754_result) {
