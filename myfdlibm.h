@@ -4,7 +4,10 @@
 #ifndef N
     #define N 2
 #endif
-using Posit64 = sw::universal::posit<64, N>;
+#ifndef P_BIT
+    #define P_BIT 32
+#endif
+using Posit64 = sw::universal::posit<P_BIT, N>;
 using Quire64 = sw::universal::quire<64, N>;
 
 typedef union {

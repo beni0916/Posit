@@ -33,6 +33,9 @@ zero = 0.0;
 	__uint32_t lx;
 
 	EXTRACT_WORDS(hx, lx, x);
+	
+	if(P_BIT == 32)
+		hx = lx;
 
 	k = 0;
 	if (hx < 0x00100000)
