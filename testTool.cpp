@@ -3,6 +3,78 @@
 namespace fs = std::filesystem;
 using namespace std;
 
+void analyzeFloatExponentDistribution(const std::string& analysisName, const double* data, int size, std::ofstream& outputFile) {
+    std::cout << "--- " << analysisName << " 指數分佈 ---" << std::endl;
+    outputFile << "--- " << analysisName << " 指數分佈 ---" << std::endl;
+    std::map<int, int> exponentCount;
+    for (int i = 0; i < size; ++i) {
+        if (data[i] > 0.0) {
+            int exponent;
+            frexp(data[i], &exponent);
+            exponentCount[exponent]++;
+        }
+    }
+    for (const auto& pair : exponentCount) {
+        std::cout << "Exponent " << pair.first << ": " << pair.second << " 次" << std::endl;
+        outputFile << "Exponent " << pair.first << ": " << pair.second << " 次" << std::endl;
+    }
+    // 輸出直方圖
+    std::cout << "\n--- " << analysisName << " 指數分佈 (直方圖) ---" << std::endl;
+    outputFile << "\n--- " << analysisName << " 指數分佈 (直方圖) ---" << std::endl;
+    int maxCount = 0;
+    if (!exponentCount.empty()) {
+        for (const auto& pair : exponentCount) {
+            if (pair.second > maxCount) {
+                maxCount = pair.second;
+            }
+        }
+    }
+
+    const int barWidth = 50; // 直方圖最寬的長度
+    for (const auto& pair : exponentCount) {
+        int exponent = pair.first;
+        int count = pair.second;
+        
+        int barLength = 0;
+        if (maxCount > 0) {
+            barLength = static_cast<int>((static_cast<double>(count) / maxCount) * barWidth);
+        }
+        std::cout << "Exponent " << std::setw(3) << exponent << ": " << std::string(barLength, '#') << " (" << count << ")" << std::endl;
+        outputFile << "Exponent " << std::setw(3) << exponent << ": " << std::string(barLength, '#') << " (" << count << ")" << std::endl;
+    }
+    std::cout << "--------------------------------\n";
+    outputFile << "--------------------------------\n";
+}
+
+double calculateMeanRelativeError(const std::vector<double>& errors, const std::vector<double>& mpfrValues) {
+    if (errors.empty() || mpfrValues.empty() || errors.size() != mpfrValues.size()) {
+        return 0.0;
+    }
+
+    double sumOfRelativeErrors = 0.0;
+    int validCount = errors.size(); // 計算所有像素的平均值
+
+    for (size_t i = 0; i < errors.size(); ++i) {
+        if (mpfrValues[i] == 0.0) {
+            // 參考值為 0 的情況
+            if (errors[i] == 0.0) {
+                // 如果誤差也為 0 (Posit結果也是0)，則相對誤差為 0
+                sumOfRelativeErrors += 0.0;
+            } else {
+                // 如果誤差不為 0 (Posit結果不為0)，代表發生極大誤差
+                // 將其視為一個非常大的值，避免除以零且能反映誤差的嚴重性
+                sumOfRelativeErrors += DBL_MAX;
+            }
+        } else {
+            // 一般情況：參考值不為 0
+            sumOfRelativeErrors += std::abs(errors[i] / mpfrValues[i]);
+        }
+    }
+
+    // 計算平均值
+    return (validCount > 0) ? sumOfRelativeErrors / validCount : 0.0;
+}
+
 // 取得檔案名稱（不含副檔名）的函數
 std::string getFilenameWithoutExtension(const std::string& filename) {
     size_t dotPos = filename.find_last_of('.');
@@ -177,7 +249,7 @@ std::string toString(Posit64 input) {
     long double numericInput = static_cast<long double>(input); // <-- 這裡改名了
 
     // 對 ostringstream 應用 fixed 和 setprecision
-    out << std::fixed << std::setprecision(25) << numericInput;
+    out << std::fixed << std::setprecision(50) << numericInput;
     
     // 從 ostringstream 獲取字串，並使用 'result' 作為變數名
     std::string result = out.str(); // <-- 這裡使用 'result'

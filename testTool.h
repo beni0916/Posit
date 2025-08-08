@@ -1,21 +1,17 @@
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb/stb_image_write.h"
 #include "Posit/myfdlibm.h"
-#include <gmp.h>
-#include <mpfr.h>
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <filesystem>
 #include <string>
-#include <iomanip>
-#include <bits/stdc++.h>
 #include <fstream>
+#include <filesystem>
+#include <vector>
+#include <mpfr.h>
+#include <bits/stdc++.h>
 
 namespace fs = std::filesystem;
 using namespace std;
+
+void analyzeFloatExponentDistribution(const std::string& analysisName, const double* data, int size, std::ofstream& outputFile);
+
+double calculateMeanRelativeError(const std::vector<double>& errors, const std::vector<double>& mpfrValues);
 
 std::string getFilenameWithoutExtension(const std::string& filename);
 

@@ -1,3 +1,17 @@
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb/stb_image.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb/stb_image_write.h"
+#include <gmp.h>
+#include <mpfr.h>
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <filesystem>
+#include <string>
+#include <iomanip>
+#include <bits/stdc++.h>
+#include <fstream>
 #include "testTool.h"
 
 namespace fs = std::filesystem;
@@ -64,7 +78,6 @@ void applyGammaCorrectionMpfr(int width, int height, const unsigned char* inputD
     mpfr_clear(div255);
 }
 
-
 int main() {
     std::string folderPath = "testImg";
     double gammaValue = 2.2; // 伽馬校正的伽馬值
@@ -80,6 +93,14 @@ int main() {
         std::cerr << "無法開啟 RMSE 輸出檔案: output/rmse_results.txt" << std::endl;
         return 1; // 開啟檔案失敗，終止程式
     }
+    
+    // 開啟 Exponent 分佈結果輸出檔案
+    std::ofstream exponentOutputFile("output/exponent_distribution.txt", std::ios::app);
+    if (!exponentOutputFile.is_open()) {
+        std::cerr << "無法開啟指數分佈輸出檔案: output/exponent_distribution.txt" << std::endl;
+        return 1; // 開啟檔案失敗，終止程式
+    }
+    
 
     for (const auto& entry : fs::directory_iterator(folderPath)) {
         if (fs::is_regular_file(entry)) {
@@ -93,45 +114,86 @@ int main() {
                     std::cerr << "無法讀取影像: " << filename << std::endl;
                     continue; // 讀取失敗，繼續處理下一個檔案
                 }
+                
+                int pixelCount = width * height * 3; // 修正: 使用強制要求的 3 通道來計算
 
                 std::cout << "處理影像: " << filename << ", 寬度: " << width << ", 高度: " << height << std::endl;
                 rmseOutputFile << "處理影像: " << filename << ", 寬度: " << width << ", 高度: " << height << std::endl;
+                exponentOutputFile << "處理影像: " << filename << ", 寬度: " << width << ", 高度: " << height << std::endl;
 
-                // ***** 獲取不同精度的伽馬校正浮點數結果 *****
-                double* correctedFloatResult = new double[width * height * channels];
-                applyGammaCorrectionFloat(width, height, rgbData, correctedFloatResult, gammaValue, channels);
-
-                Posit64* correctedPosit64Result = new Posit64[width * height * channels];
-                applyGammaCorrectionPosit64(width, height, rgbData, correctedPosit64Result, Posit64(gammaValue), channels);
+                // ***** 獲取原始浮點數結果來進行分析 *****
+                double* originalFloatData = new double[pixelCount];
+                for(int i = 0; i < pixelCount; ++i) {
+                     originalFloatData[i] = static_cast<double>(rgbData[i]) / 255.0;
+                }
+                analyzeFloatExponentDistribution("原始影像", originalFloatData, pixelCount, exponentOutputFile);
                 
-                Posit32* correctedPosit32Result = new Posit32[width * height * channels];
-                applyGammaCorrectionPosit32(width, height, rgbData, correctedPosit32Result, Posit32(gammaValue), channels);
+                // ***** 獲取不同精度的伽馬校正浮點數結果 *****
+                double* correctedFloatResult = new double[pixelCount];
+                applyGammaCorrectionFloat(width, height, rgbData, correctedFloatResult, gammaValue, 3); // 修正: 傳遞正確的通道數 3
+                analyzeFloatExponentDistribution("IEEE伽馬校正", correctedFloatResult, pixelCount, exponentOutputFile);
 
-                Posit16_1* correctedPosit16_1Result = new Posit16_1[width * height * channels];
-                applyGammaCorrectionPosit16_1(width, height, rgbData, correctedPosit16_1Result, Posit16_1(gammaValue), channels);
 
-                Posit16_2* correctedPosit16_2Result = new Posit16_2[width * height * channels];
-                applyGammaCorrectionPosit16_2(width, height, rgbData, correctedPosit16_2Result, Posit16_2(gammaValue), channels);
+                Posit64* correctedPosit64Result = new Posit64[pixelCount];
+                applyGammaCorrectionPosit64(width, height, rgbData, correctedPosit64Result, Posit64(gammaValue), 3); // 修正: 傳遞正確的通道數 3
+                // Posit 格式的分析需要將 Posit 轉為 double
+                double* posit64DoubleData = new double[pixelCount];
+                for(int i = 0; i < pixelCount; ++i) {
+                    posit64DoubleData[i] = (double)correctedPosit64Result[i];
+                }
+                analyzeFloatExponentDistribution("Posit64伽馬校正", posit64DoubleData, pixelCount, exponentOutputFile);
+                
+                Posit32* correctedPosit32Result = new Posit32[pixelCount];
+                applyGammaCorrectionPosit32(width, height, rgbData, correctedPosit32Result, Posit32(gammaValue), 3); // 修正: 傳遞正確的通道數 3
+                double* posit32DoubleData = new double[pixelCount];
+                for(int i = 0; i < pixelCount; ++i) {
+                    posit32DoubleData[i] = (double)correctedPosit32Result[i];
+                }
+                analyzeFloatExponentDistribution("Posit32伽馬校正", posit32DoubleData, pixelCount, exponentOutputFile);
 
-                mpfr_t* correctedMpfrResult = new mpfr_t[width * height * channels];
+
+                Posit16_1* correctedPosit16_1Result = new Posit16_1[pixelCount];
+                applyGammaCorrectionPosit16_1(width, height, rgbData, correctedPosit16_1Result, Posit16_1(gammaValue), 3); // 修正: 傳遞正確的通道數 3
+                double* posit16_1DoubleData = new double[pixelCount];
+                for(int i = 0; i < pixelCount; ++i) {
+                    posit16_1DoubleData[i] = (double)correctedPosit16_1Result[i];
+                }
+                analyzeFloatExponentDistribution("Posit16_1伽馬校正", posit16_1DoubleData, pixelCount, exponentOutputFile);
+
+                Posit16_2* correctedPosit16_2Result = new Posit16_2[pixelCount];
+                applyGammaCorrectionPosit16_2(width, height, rgbData, correctedPosit16_2Result, Posit16_2(gammaValue), 3); // 修正: 傳遞正確的通道數 3
+                double* posit16_2DoubleData = new double[pixelCount];
+                for(int i = 0; i < pixelCount; ++i) {
+                    posit16_2DoubleData[i] = (double)correctedPosit16_2Result[i];
+                }
+                analyzeFloatExponentDistribution("Posit16_2伽馬校正", posit16_2DoubleData, pixelCount, exponentOutputFile);
+
+
+                mpfr_t* correctedMpfrResult = new mpfr_t[pixelCount];
                 mpfr_prec_t prec = 256; // MPFR 精度
                 mpfr_t gammaMpfr;
                 mpfr_init2(gammaMpfr, prec);
                 mpfr_set_d(gammaMpfr, gammaValue, MPFR_RNDN);
-                for(int i = 0; i < width * height * channels; ++i) {
+                for(int i = 0; i < pixelCount; ++i) {
                     mpfr_init2(correctedMpfrResult[i], prec);
                 }
-                applyGammaCorrectionMpfr(width, height, rgbData, correctedMpfrResult, gammaMpfr, channels, prec);
+                applyGammaCorrectionMpfr(width, height, rgbData, correctedMpfrResult, gammaMpfr, 3, prec); // 修正: 傳遞正確的通道數 3
                 mpfr_clear(gammaMpfr);
+                
+                // MPFR 的分析需要將 MPFR 轉為 double
+                double* mpfrDoubleData = new double[pixelCount];
+                for(int i = 0; i < pixelCount; ++i) {
+                    mpfrDoubleData[i] = mpfr_get_d(correctedMpfrResult[i], MPFR_RNDN);
+                }
+                analyzeFloatExponentDistribution("MPFR伽馬校正", mpfrDoubleData, pixelCount, exponentOutputFile);
 
                 // 將數值轉str並進行誤差運算 (在浮點數層級)
                 vector<double> ieeeRMSEVals, pos64RMSEVals, pos32RMSEVals, pos16_1RMSEVals, pos16_2RMSEVals;
+                vector<double> MPFRVals;
                 // 新增用於計算整數 RMSE 的向量
                 vector<double> ieeeIntRMSEVals, pos64IntRMSEVals, pos32IntRMSEVals, pos16_1IntRMSEVals, pos16_2IntRMSEVals;
-
-                // 新增 MPFR 轉換後的整數參考值
+                
                 unsigned char* correctedRgbDataMpfrRef = new unsigned char[width * height * 3];
-
                 std::string filenameOnly = fs::path(filename).filename().string();
                 std::string filenameWithoutExt = getFilenameWithoutExtension(filenameOnly);
                 std::string outputTextFilename = "output/" + filenameWithoutExt + "_gamma_fp_values.txt";
@@ -140,14 +202,14 @@ int main() {
                     std::cerr << "無法開啟浮點數輸出檔案: " << outputTextFilename << std::endl;
                 }
 
-                for (int i = 0; i < width * height * 3; i++) {
+                for (int i = 0; i < pixelCount; i++) {
                     std::string ieeeStr = toString(correctedFloatResult[i]);
                     std::string posit64Str = toString(correctedPosit64Result[i]);
                     std::string posit32Str = toString(correctedPosit32Result[i]);
                     std::string posit16_1Str = toString(correctedPosit16_1Result[i]);
                     std::string posit16_2Str = toString(correctedPosit16_2Result[i]);
                     std::string mpfrStr = toString(correctedMpfrResult[i]);
-
+                    
                     outputFile << "Pixel " << i << ":\n";
                     outputFile << "  MPFR: " << mpfrStr << "\n";
                     outputFile << "  IEEE: " << ieeeStr << "\n";
@@ -155,26 +217,28 @@ int main() {
                     outputFile << "  Posit32: " << posit32Str << "\n";
                     outputFile << "  Posit16_1: " << posit16_1Str << "\n";
                     outputFile << "  Posit16_2: " << posit16_2Str << "\n";
-
+                    
                     double ieee754ResultDiff = stod(difference(mpfrStr, ieeeStr));
                     double posit64ResultDiff = stod(difference(mpfrStr, posit64Str));
                     double posit32ResultDiff = stod(difference(mpfrStr, posit32Str));
                     double posit16_1ResultDiff = stod(difference(mpfrStr, posit16_1Str));
                     double posit16_2ResultDiff = stod(difference(mpfrStr, posit16_2Str));
-
+                    
                     outputFile << "  IEEE d: " << ieee754ResultDiff << "\n";
                     outputFile << "  Posit64 d: " << posit64ResultDiff << "\n";
                     outputFile << "  Posit32 d: " << posit32ResultDiff << "\n";
                     outputFile << "  Posit16_1 d: " << posit16_1ResultDiff << "\n";
                     outputFile << "  Posit16_2 d: " << posit16_2ResultDiff << "\n";
                     outputFile << "--------------------\n";
-
+                    
                     ieeeRMSEVals.push_back(ieee754ResultDiff);
                     pos64RMSEVals.push_back(posit64ResultDiff);
                     pos32RMSEVals.push_back(posit32ResultDiff);
                     pos16_1RMSEVals.push_back(posit16_1ResultDiff);
                     pos16_2RMSEVals.push_back(posit16_2ResultDiff);
                     
+                    MPFRVals.push_back(stod(mpfrStr));
+
                     // 計算整數層級的誤差
                     correctedRgbDataMpfrRef[i] = static_cast<unsigned char>(std::min(255.0, std::max(0.0, mpfr_get_d(correctedMpfrResult[i], MPFR_RNDN) * 255.0)));
                     unsigned char correctedRgbDataFloatVal = static_cast<unsigned char>(std::min(255.0, std::max(0.0, correctedFloatResult[i] * 255.0)));
@@ -198,6 +262,12 @@ int main() {
                 double posit32FpRMSE = RMSE(pos32RMSEVals);
                 double posit16_1FpRMSE = RMSE(pos16_1RMSEVals);
                 double posit16_2FpRMSE = RMSE(pos16_2RMSEVals);
+
+                double ieeeFpMRE = calculateMeanRelativeError(ieeeRMSEVals,MPFRVals);
+                double posit64FpMRE = calculateMeanRelativeError(pos64RMSEVals,MPFRVals);
+                double posit32FpMRE = calculateMeanRelativeError(pos32RMSEVals,MPFRVals);
+                double posit16_1FpMRE = calculateMeanRelativeError(pos16_1RMSEVals,MPFRVals);
+                double posit16_2FpMRE = calculateMeanRelativeError(pos16_2RMSEVals,MPFRVals);
                 
                 std::cout << fixed  << setprecision(50) << "--- 浮點數層級 RMSE (vs MPFR) ---" << std::endl;
                 rmseOutputFile << fixed  << setprecision(50) << "--- 浮點數層級 RMSE (vs MPFR) ---" << std::endl;
@@ -212,6 +282,19 @@ int main() {
                 std::cout << fixed  << setprecision(50) << "POSIT16_2 fpRMSE:" << posit16_2FpRMSE << std::endl;
                 rmseOutputFile << fixed  << setprecision(50) << "POSIT16_2 fpRMSE:" << posit16_2FpRMSE << std::endl;
 
+                std::cout << fixed  << setprecision(50) << "--- 浮點數層級 MRE (vs MPFR) ---" << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "--- 浮點數層級 MRE (vs MPFR) ---" << std::endl;
+                std::cout << fixed  << setprecision(50) << "IEEE FpMRE:" << ieeeFpMRE << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "IEEE FpMRE:" << ieeeFpMRE << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT64 FpMRE:" << posit64FpMRE << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "POSIT64 FpMRE:" << posit64FpMRE << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT32 FpMRE:" << posit32FpMRE << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "POSIT32 FpMRE:" << posit32FpMRE << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT16_1 FpMRE:" << posit16_1FpMRE << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "POSIT16_1 FpMRE:" << posit16_1FpMRE << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT16_2 FpMRE:" << posit16_2FpMRE << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "POSIT16_2 FpMRE:" << posit16_2FpMRE << std::endl;
+                
                 // ***** 輸出整數層級 RMSE *****
                 double ieeeIntRMSE = RMSE(ieeeIntRMSEVals);
                 double posit64IntRMSE = RMSE(pos64IntRMSEVals);
@@ -235,14 +318,14 @@ int main() {
                 rmseOutputFile << "----------------------------------------\n";
                 
                 // ***** 將浮點數結果轉換回 0-255 的 unsigned char 陣列，以便儲存為圖像 *****
-                unsigned char* correctedRgbDataFloat = new unsigned char[width * height * 3];
-                unsigned char* correctedRgbDataPosit64 = new unsigned char[width * height * 3];
-                unsigned char* correctedRgbDataPosit32 = new unsigned char[width * height * 3];
-                unsigned char* correctedRgbDataPosit16_1 = new unsigned char[width * height * 3];
-                unsigned char* correctedRgbDataPosit16_2 = new unsigned char[width * height * 3];
-                unsigned char* correctedRgbDataMpfr = new unsigned char[width * height * 3];
+                unsigned char* correctedRgbDataFloat = new unsigned char[pixelCount];
+                unsigned char* correctedRgbDataPosit64 = new unsigned char[pixelCount];
+                unsigned char* correctedRgbDataPosit32 = new unsigned char[pixelCount];
+                unsigned char* correctedRgbDataPosit16_1 = new unsigned char[pixelCount];
+                unsigned char* correctedRgbDataPosit16_2 = new unsigned char[pixelCount];
+                unsigned char* correctedRgbDataMpfr = new unsigned char[pixelCount];
 
-                for (int i = 0; i < width * height * 3; ++i) {
+                for (int i = 0; i < pixelCount; ++i) {
                     correctedRgbDataFloat[i] = static_cast<unsigned char>(std::min(255.0, std::max(0.0, correctedFloatResult[i] * 255.0)));
                     correctedRgbDataPosit64[i] = static_cast<unsigned char>((int)Posit_floor(correctedPosit64Result[i] * Posit64(255.0)));
                     correctedRgbDataPosit32[i] = static_cast<unsigned char>((int)Posit_floor(correctedPosit32Result[i] * Posit32(255.0)));
@@ -272,15 +355,21 @@ int main() {
 
                 // ***** 記憶體釋放 *****
                 stbi_image_free(rgbData);
+                delete[] originalFloatData;
                 delete[] correctedFloatResult;
                 delete[] correctedPosit64Result;
+                delete[] posit64DoubleData;
                 delete[] correctedPosit32Result;
+                delete[] posit32DoubleData;
                 delete[] correctedPosit16_1Result;
+                delete[] posit16_1DoubleData;
                 delete[] correctedPosit16_2Result;
-                for (int i = 0; i < width * height * 3; ++i) {
+                delete[] posit16_2DoubleData;
+                for (int i = 0; i < pixelCount; ++i) {
                     mpfr_clear(correctedMpfrResult[i]);
                 }
                 delete[] correctedMpfrResult;
+                delete[] mpfrDoubleData;
                 delete[] correctedRgbDataFloat;
                 delete[] correctedRgbDataPosit64;
                 delete[] correctedRgbDataPosit32;
@@ -288,7 +377,6 @@ int main() {
                 delete[] correctedRgbDataPosit16_2;
                 delete[] correctedRgbDataMpfr;
                 delete[] correctedRgbDataMpfrRef;
-
 
                 std::cout << "浮點數伽馬校正影像已儲存為: " << outputFilenameFloat << std::endl;
                 std::cout << "Posit64 伽馬校正影像已儲存為: " << outputFilenamePosit64 << std::endl;
@@ -302,6 +390,8 @@ int main() {
     
     // 關閉 RMSE 檔案
     rmseOutputFile.close();
+    // 關閉 exponent 檔案
+    exponentOutputFile.close();
 
     return 0;
 }
