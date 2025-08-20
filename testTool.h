@@ -17,6 +17,10 @@ std::string getFilenameWithoutExtension(const std::string& filename);
 
 std::string getFileExtension(const std::string& filename);
 
+double calculateMedian(const std::vector<double>& vec);
+
+double calculateStandardDeviation(const std::vector<double>& vec);
+
 double RMSE(const std::vector<double> &vec);
 
 std::string difference(std::string& num1, std::string& num2);

@@ -263,25 +263,56 @@ int main() {
                 double posit16_1FpRMSE = RMSE(pos16_1RMSEVals);
                 double posit16_2FpRMSE = RMSE(pos16_2RMSEVals);
 
-                double ieeeFpMRE = calculateMeanRelativeError(ieeeRMSEVals,MPFRVals);
-                double posit64FpMRE = calculateMeanRelativeError(pos64RMSEVals,MPFRVals);
-                double posit32FpMRE = calculateMeanRelativeError(pos32RMSEVals,MPFRVals);
-                double posit16_1FpMRE = calculateMeanRelativeError(pos16_1RMSEVals,MPFRVals);
-                double posit16_2FpMRE = calculateMeanRelativeError(pos16_2RMSEVals,MPFRVals);
-                
-                std::cout << fixed  << setprecision(50) << "--- 浮點數層級 RMSE (vs MPFR) ---" << std::endl;
-                rmseOutputFile << fixed  << setprecision(50) << "--- 浮點數層級 RMSE (vs MPFR) ---" << std::endl;
-                std::cout << fixed  << setprecision(50) << "IEEE fpRMSE:" << ieeeFpRMSE << std::endl;
-                rmseOutputFile << fixed  << setprecision(50) << "IEEE fpRMSE:" << ieeeFpRMSE << std::endl;
-                std::cout << fixed  << setprecision(50) << "POSIT64 fpRMSE:" << posit64FpRMSE << std::endl;
-                rmseOutputFile << fixed  << setprecision(50) << "POSIT64 fpRMSE:" << posit64FpRMSE << std::endl;
-                std::cout << fixed  << setprecision(50) << "POSIT32 fpRMSE:" << posit32FpRMSE << std::endl;
-                rmseOutputFile << fixed  << setprecision(50) << "POSIT32 fpRMSE:" << posit32FpRMSE << std::endl;
-                std::cout << fixed  << setprecision(50) << "POSIT16_1 fpRMSE:" << posit16_1FpRMSE << std::endl;
-                rmseOutputFile << fixed  << setprecision(50) << "POSIT16_1 fpRMSE:" << posit16_1FpRMSE << std::endl;
-                std::cout << fixed  << setprecision(50) << "POSIT16_2 fpRMSE:" << posit16_2FpRMSE << std::endl;
-                rmseOutputFile << fixed  << setprecision(50) << "POSIT16_2 fpRMSE:" << posit16_2FpRMSE << std::endl;
+                // ***** 浮點數層級 平均相對誤差 (MRE) *****
+                double ieeeFpMRE = calculateMeanRelativeError(ieeeRMSEVals, MPFRVals);
+                double posit64FpMRE = calculateMeanRelativeError(pos64RMSEVals, MPFRVals);
+                double posit32FpMRE = calculateMeanRelativeError(pos32RMSEVals, MPFRVals);
+                double posit16_1FpMRE = calculateMeanRelativeError(pos16_1RMSEVals, MPFRVals);
+                double posit16_2FpMRE = calculateMeanRelativeError(pos16_2RMSEVals, MPFRVals);
 
+                // ***** 浮點數層級 中位數誤差 *****
+                double ieeeFpMedian = calculateMedian(ieeeRMSEVals);
+                double posit64FpMedian = calculateMedian(pos64RMSEVals);
+                double posit32FpMedian = calculateMedian(pos32RMSEVals);
+                double posit16_1FpMedian = calculateMedian(pos16_1RMSEVals);
+                double posit16_2FpMedian = calculateMedian(pos16_2RMSEVals);
+
+                // ***** 浮點數層級 標準差誤差 *****
+                double ieeeFpStdDev = calculateStandardDeviation(ieeeRMSEVals);
+                double posit64FpStdDev = calculateStandardDeviation(pos64RMSEVals);
+                double posit32FpStdDev = calculateStandardDeviation(pos32RMSEVals);
+                double posit16_1FpStdDev = calculateStandardDeviation(pos16_1RMSEVals);
+                double posit16_2FpStdDev = calculateStandardDeviation(pos16_2RMSEVals);
+                
+                // --- 輸出中位數 ---
+                std::cout << fixed  << setprecision(50) << "--- 浮點數層級 中位數 (vs MPFR) ---" << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "--- 浮點數層級 中位數 (vs MPFR) ---" << std::endl;
+                std::cout << fixed  << setprecision(50) << "IEEE FpMedian:" << ieeeFpMedian << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "IEEE FpMedian:" << ieeeFpMedian << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT64 FpMedian:" << posit64FpMedian << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "POSIT64 FpMedian:" << posit64FpMedian << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT32 FpMedian:" << posit32FpMedian << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "POSIT32 FpMedian:" << posit32FpMedian << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT16_1 FpMedian:" << posit16_1FpMedian << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "POSIT16_1 FpMedian:" << posit16_1FpMedian << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT16_2 FpMedian:" << posit16_2FpMedian << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "POSIT16_2 FpMedian:" << posit16_2FpMedian << std::endl;
+
+                // --- 輸出標準差 ---
+                std::cout << fixed  << setprecision(50) << "--- 浮點數層級 標準差 (vs MPFR) ---" << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "--- 浮點數層級 標準差 (vs MPFR) ---" << std::endl;
+                std::cout << fixed  << setprecision(50) << "IEEE FpStdDev:" << ieeeFpStdDev << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "IEEE FpStdDev:" << ieeeFpStdDev << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT64 FpStdDev:" << posit64FpStdDev << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "POSIT64 FpStdDev:" << posit64FpStdDev << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT32 FpStdDev:" << posit32FpStdDev << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "POSIT32 FpStdDev:" << posit32FpStdDev << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT16_1 FpStdDev:" << posit16_1FpStdDev << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "POSIT16_1 FpStdDev:" << posit16_1FpStdDev << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT16_2 FpStdDev:" << posit16_2FpStdDev << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "POSIT16_2 FpStdDev:" << posit16_2FpStdDev << std::endl;
+
+                // --- 輸出平均相對誤差（MRE） ---
                 std::cout << fixed  << setprecision(50) << "--- 浮點數層級 MRE (vs MPFR) ---" << std::endl;
                 rmseOutputFile << fixed  << setprecision(50) << "--- 浮點數層級 MRE (vs MPFR) ---" << std::endl;
                 std::cout << fixed  << setprecision(50) << "IEEE FpMRE:" << ieeeFpMRE << std::endl;
@@ -294,6 +325,19 @@ int main() {
                 rmseOutputFile << fixed  << setprecision(50) << "POSIT16_1 FpMRE:" << posit16_1FpMRE << std::endl;
                 std::cout << fixed  << setprecision(50) << "POSIT16_2 FpMRE:" << posit16_2FpMRE << std::endl;
                 rmseOutputFile << fixed  << setprecision(50) << "POSIT16_2 FpMRE:" << posit16_2FpMRE << std::endl;
+
+                std::cout << fixed  << setprecision(50) << "--- 浮點數層級 RMSE (vs MPFR) ---" << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "--- 浮點數層級 RMSE (vs MPFR) ---" << std::endl;
+                std::cout << fixed  << setprecision(50) << "IEEE FpRMSE:" << ieeeFpRMSE << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "IEEE FpRMSE:" << ieeeFpRMSE << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT64 FpRMSE:" << posit64FpRMSE << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "POSIT64 FpRMSE:" << posit64FpRMSE << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT32 FpRMSE:" << posit32FpRMSE << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "POSIT32 FpRMSE:" << posit32FpRMSE << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT16_1 FpRMSE:" << posit16_1FpRMSE << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "POSIT16_1 FpRMSE:" << posit16_1FpRMSE << std::endl;
+                std::cout << fixed  << setprecision(50) << "POSIT16_2 FpRMSE:" << posit16_2FpRMSE << std::endl;
+                rmseOutputFile << fixed  << setprecision(50) << "POSIT16_2 FpRMSE:" << posit16_2FpRMSE << std::endl;
                 
                 // ***** 輸出整數層級 RMSE *****
                 double ieeeIntRMSE = RMSE(ieeeIntRMSEVals);

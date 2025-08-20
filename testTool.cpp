@@ -97,6 +97,36 @@ std::string getFileExtension(const std::string& filename) {
     return "";
 }
 
+double calculateMedian(const std::vector<double>& vec) {
+    if (vec.empty()) {
+        return 0.0;
+    }
+    std::vector<double> sortedVec = vec;
+    std::sort(sortedVec.begin(), sortedVec.end());
+    size_t size = sortedVec.size();
+    if (size % 2 == 0) {
+        // 如果向量大小為偶數，取中間兩個數的平均
+        return (sortedVec[size / 2 - 1] + sortedVec[size / 2]) / 2.0;
+    } else {
+        // 如果為奇數，取中間的數
+        return sortedVec[size / 2];
+    }
+}
+
+// 函式：計算向量的標準差
+double calculateStandardDeviation(const std::vector<double>& vec) {
+    if (vec.size() <= 1) {
+        return 0.0;
+    }
+    double sum = std::accumulate(vec.begin(), vec.end(), 0.0);
+    double mean = sum / vec.size();
+    double sumOfSquaredDifferences = 0.0;
+    for (double val : vec) {
+        sumOfSquaredDifferences += (val - mean) * (val - mean);
+    }
+    return std::sqrt(sumOfSquaredDifferences / (vec.size() - 1));
+}
+
 double RMSE(const std::vector<double> &vec) {
     if (vec.empty()) {
         return 0.0; // 或者拋出例外，視你的需求而定
