@@ -86,7 +86,7 @@ double* gaussianBlurFloatStb(int width, int height, const unsigned char* rgbData
 
     double* normalizedRgbData = new double[width * height * channels];
     for (int i = 0; i < width * height * channels; ++i) {
-        normalizedRgbData[i] = static_cast<double>(rgbData[i]) / 1.0f;
+        normalizedRgbData[i] = static_cast<double>(rgbData[i]) / 255.0f;
     }
 
     double* tempHorizontal = new double[width * height * channels];
@@ -135,7 +135,7 @@ void applyGaussianBlurHorizontalPosit64(int width, int height, const unsigned ch
                     if (pixelX < 0) pixelX = 0; // 邊界處理：複製邊界像素
                     if (pixelX >= width) pixelX = width - 1; // 邊界處理：複製邊界像素
 
-                    sum += (Posit64(inputData[(y * width + pixelX) * channels + c]) / Posit64(1.0)) * kernel[k + radius];
+                    sum += (Posit64(inputData[(y * width + pixelX) * channels + c]) / Posit64(255.0)) * kernel[k + radius];
                 }
                 outputData[(y * width + x) * channels + c] = sum;
             }
@@ -213,7 +213,7 @@ void applyGaussianBlurHorizontalPosit32(int width, int height, const unsigned ch
                     if (pixelX < 0) pixelX = 0;
                     if (pixelX >= width) pixelX = width - 1;
 
-                    sum += (Posit32(inputData[(y * width + pixelX) * channels + c]) / Posit32(1.0)) * kernel[k + radius];
+                    sum += (Posit32(inputData[(y * width + pixelX) * channels + c]) / Posit32(255.0)) * kernel[k + radius];
                 }
                 outputData[(y * width + x) * channels + c] = sum;
             }
@@ -287,7 +287,7 @@ void applyGaussianBlurHorizontalPosit16_1(int width, int height, const unsigned 
                     if (pixelX < 0) pixelX = 0;
                     if (pixelX >= width) pixelX = width - 1;
 
-                    sum += (Posit16_1(inputData[(y * width + pixelX) * channels + c]) / Posit16_1(1.0)) * kernel[k + radius];
+                    sum += (Posit16_1(inputData[(y * width + pixelX) * channels + c]) / Posit16_1(255.0)) * kernel[k + radius];
                 }
                 outputData[(y * width + x) * channels + c] = sum;
             }
@@ -361,7 +361,7 @@ void applyGaussianBlurHorizontalPosit16_2(int width, int height, const unsigned 
                     if (pixelX < 0) pixelX = 0;
                     if (pixelX >= width) pixelX = width - 1;
 
-                    sum += (Posit16_2(inputData[(y * width + pixelX) * channels + c]) / Posit16_2(1.0)) * kernel[k + radius];
+                    sum += (Posit16_2(inputData[(y * width + pixelX) * channels + c]) / Posit16_2(255.0)) * kernel[k + radius];
                 }
                 outputData[(y * width + x) * channels + c] = sum;
             }
@@ -520,16 +520,16 @@ mpfr_t* gaussianBlurMpfrStb(int width, int height, const unsigned char* rgbData,
 
     // 1. 將輸入的 unsigned char 影像轉換為 MPFR 格式並正規化 (0-1)
     mpfr_t* inputMpfrData = new mpfr_t[width * height * channels];
-    mpfr_t div1;
-    mpfr_init2(div1, prec);
-    mpfr_set_d(div1, 1.0, MPFR_RNDN);
+    mpfr_t div255;
+    mpfr_init2(div255, prec);
+    mpfr_set_d(div255, 255.0, MPFR_RNDN);
 
     for (int i = 0; i < width * height * channels; ++i) {
         mpfr_init2(inputMpfrData[i], prec);
         mpfr_set_d(inputMpfrData[i], static_cast<double>(rgbData[i]), MPFR_RNDN);
-        mpfr_div(inputMpfrData[i], inputMpfrData[i], div1, MPFR_RNDN); // 正規化
+        mpfr_div(inputMpfrData[i], inputMpfrData[i], div255, MPFR_RNDN); // 正規化
     }
-    mpfr_clear(div1);
+    mpfr_clear(div255);
 
     // 準備 sigma 的 MPFR 版本
     mpfr_t sigma_mpfr;
@@ -622,7 +622,7 @@ int main() {
                 // ***** 獲取原始浮點數結果來進行分析 *****
                 double* originalFloatData = new double[pixelCount];
                 for(int i = 0; i < pixelCount; ++i) {
-                     originalFloatData[i] = static_cast<double>(rgbData[i]) / 1.0;
+                     originalFloatData[i] = static_cast<double>(rgbData[i]) / 255.0;
                 }
                 analyzeFloatExponentDistribution("原始影像", originalFloatData, pixelCount, exponentOutputFile);
 
@@ -732,12 +732,12 @@ int main() {
                     pos16_2RMSEVals.push_back(posit16_2ResultDiff);
                     
                     // 計算整數層級的誤差
-                    blurredRgbDataMpfrRef[i] = static_cast<unsigned char>(std::min(255.0, std::max(0.0, mpfr_get_d(blurredMpfrResult[i], MPFR_RNDN) * 1.0)));
-                    unsigned char blurredRgbDataFloatVal = static_cast<unsigned char>(std::min(255.0, std::max(0.0, blurredFloatResult[i] * 1.0)));
-                    unsigned char blurredRgbDataPosit64Val = static_cast<unsigned char>((int)Posit_floor(blurredPosit64Result[i] * Posit64(1.0)));
-                    unsigned char blurredRgbDataPosit32Val = static_cast<unsigned char>((int)Posit_floor(blurredPosit32Result[i] * Posit32(1.0)));
-                    unsigned char blurredRgbDataPosit16_1Val = static_cast<unsigned char>((int)Posit_floor(blurredPosit16_1Result[i] * Posit16_1(1.0)));
-                    unsigned char blurredRgbDataPosit16_2Val = static_cast<unsigned char>((int)Posit_floor(blurredPosit16_2Result[i] * Posit16_2(1.0)));
+                    blurredRgbDataMpfrRef[i] = static_cast<unsigned char>(std::min(255.0, std::max(0.0, mpfr_get_d(blurredMpfrResult[i], MPFR_RNDN) * 255.0)));
+                    unsigned char blurredRgbDataFloatVal = static_cast<unsigned char>(std::min(255.0, std::max(0.0, blurredFloatResult[i] * 255.0)));
+                    unsigned char blurredRgbDataPosit64Val = static_cast<unsigned char>((int)Posit_floor(blurredPosit64Result[i] * Posit64(255.0)));
+                    unsigned char blurredRgbDataPosit32Val = static_cast<unsigned char>((int)Posit_floor(blurredPosit32Result[i] * Posit32(255.0)));
+                    unsigned char blurredRgbDataPosit16_1Val = static_cast<unsigned char>((int)Posit_floor(blurredPosit16_1Result[i] * Posit16_1(255.0)));
+                    unsigned char blurredRgbDataPosit16_2Val = static_cast<unsigned char>((int)Posit_floor(blurredPosit16_2Result[i] * Posit16_2(255.0)));
                     
                     ieeeIntRMSEVals.push_back(static_cast<double>(blurredRgbDataMpfrRef[i] - blurredRgbDataFloatVal));
                     pos64IntRMSEVals.push_back(static_cast<double>(blurredRgbDataMpfrRef[i] - blurredRgbDataPosit64Val));
@@ -862,12 +862,12 @@ int main() {
                 unsigned char* blurredRgbDataMpfr = new unsigned char[pixelCount];
 
                 for (int i = 0; i < pixelCount; ++i) {
-                    blurredRgbDataFloat[i] = static_cast<unsigned char>(std::min(255.0, std::max(0.0, blurredFloatResult[i] * 1.0)));
-                    blurredRgbDataPosit64[i] = static_cast<unsigned char>((int)Posit_floor(blurredPosit64Result[i] * Posit64(1.0)));
-                    blurredRgbDataPosit32[i] = static_cast<unsigned char>((int)Posit_floor(blurredPosit32Result[i] * Posit32(1.0)));
-                    blurredRgbDataPosit16_1[i] = static_cast<unsigned char>((int)Posit_floor(blurredPosit16_1Result[i] * Posit16_1(1.0)));
-                    blurredRgbDataPosit16_2[i] = static_cast<unsigned char>((int)Posit_floor(blurredPosit16_2Result[i] * Posit16_2(1.0)));
-                    blurredRgbDataMpfr[i] = static_cast<unsigned char>(std::min(255.0, std::max(0.0, mpfr_get_d(blurredMpfrResult[i], MPFR_RNDN) * 1.0)));
+                    blurredRgbDataFloat[i] = static_cast<unsigned char>(std::min(255.0, std::max(0.0, blurredFloatResult[i] * 255.0)));
+                    blurredRgbDataPosit64[i] = static_cast<unsigned char>((int)Posit_floor(blurredPosit64Result[i] * Posit64(255.0)));
+                    blurredRgbDataPosit32[i] = static_cast<unsigned char>((int)Posit_floor(blurredPosit32Result[i] * Posit32(255.0)));
+                    blurredRgbDataPosit16_1[i] = static_cast<unsigned char>((int)Posit_floor(blurredPosit16_1Result[i] * Posit16_1(255.0)));
+                    blurredRgbDataPosit16_2[i] = static_cast<unsigned char>((int)Posit_floor(blurredPosit16_2Result[i] * Posit16_2(255.0)));
+                    blurredRgbDataMpfr[i] = static_cast<unsigned char>(std::min(255.0, std::max(0.0, mpfr_get_d(blurredMpfrResult[i], MPFR_RNDN) * 255.0)));
                 }
 
                 // 產生輸出影像檔案名稱並儲存

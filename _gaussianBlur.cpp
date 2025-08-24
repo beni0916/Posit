@@ -40,7 +40,7 @@ std::vector<double> generateGaussianKernel(int radius, float sigma) {
 }
 
 // 函式：應用高斯模糊 (水平方向)
-void applyGaussianBlurHorizontal(int width, int height, const double* inputData, double* outputData, const std::vector<double>& kernel, int channels) {
+void applyGaussianBlurHorizontal(int width, int height, const unsigned char* inputData, double* outputData, const std::vector<double>& kernel, int channels) {
     int radius = (kernel.size() - 1) / 2;
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
@@ -80,499 +80,22 @@ void applyGaussianBlurVertical(int width, int height, const double* inputData, d
 }
 
 // 高斯模糊主函式 (Float 版本) - 回傳浮點數結果
-double* gaussianBlurFloatStb(int width, int height, const unsigned char* rgbData, double sigma, int radius) {
+double* gaussianBlur(int width, int height, const unsigned char* rgbData, double sigma, int radius) {
     int channels = 3; // RGB 影像有 3 個通道
     std::vector<double> kernel = generateGaussianKernel(radius, sigma);
-
-    double* normalizedRgbData = new double[width * height * channels];
-    for (int i = 0; i < width * height * channels; ++i) {
-        normalizedRgbData[i] = static_cast<double>(rgbData[i]) / 1.0f;
-    }
 
     double* tempHorizontal = new double[width * height * channels];
     // 直接在函式內部建立 tempVertical，並回傳
     double* tempVertical = new double[width * height * channels];
 
     // 先進行水平模糊
-    applyGaussianBlurHorizontal(width, height, normalizedRgbData, tempHorizontal, kernel, channels);
+    applyGaussianBlurHorizontal(width, height, rgbData, tempHorizontal, kernel, channels);
     // 再進行垂直模糊
     applyGaussianBlurVertical(width, height, tempHorizontal, tempVertical, kernel, channels);
 
-    delete[] normalizedRgbData;
     delete[] tempHorizontal;
     // 不在此處轉換回 unsigned char，而是直接回傳浮點數結果
     return tempVertical;
-}
-
-// 函式：生成一維高斯核心 (Posit64)
-std::vector<Posit64> generateGaussianKernelPosit64(int radius, float sigma) {
-    int kernelSize = 2 * radius + 1;
-    std::vector<Posit64> kernel(kernelSize);
-    Posit64 sum = Posit64(0.0);
-
-    for (int i = 0; i < kernelSize; ++i) {
-        Posit64 x = i - radius;
-        kernel[i] = Posit_exp(-(x * x) / (2 * Posit64(sigma) * Posit64(sigma)));
-        sum += kernel[i];
-    }
-
-    // 歸一化核心
-    for (int i = 0; i < kernelSize; ++i) {
-        kernel[i] /= sum;
-    }
-    return kernel;
-}
-
-// 函式：應用高斯模糊 (水平方向) (Posit64)
-void applyGaussianBlurHorizontalPosit64(int width, int height, const unsigned char* inputData, Posit64* outputData, const std::vector<Posit64>& kernel, int channels) {
-    int radius = (kernel.size() - 1) / 2;
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            for (int c = 0; c < channels; ++c) {
-                Posit64 sum = Posit64(0.0);
-                for (int k = -radius; k <= radius; ++k) {
-                    int pixelX = x + k;
-                    if (pixelX < 0) pixelX = 0; // 邊界處理：複製邊界像素
-                    if (pixelX >= width) pixelX = width - 1; // 邊界處理：複製邊界像素
-
-                    sum += (Posit64(inputData[(y * width + pixelX) * channels + c]) / Posit64(1.0)) * kernel[k + radius];
-                }
-                outputData[(y * width + x) * channels + c] = sum;
-            }
-        }
-    }
-}
-
-// 函式：應用高斯模糊 (垂直方向) (Posit64)
-void applyGaussianBlurVerticalPosit64(int width, int height, const Posit64* inputData, Posit64* outputData, const std::vector<Posit64>& kernel, int channels) {
-    int radius = (kernel.size() - 1) / 2;
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            for (int c = 0; c < channels; ++c) {
-                Posit64 sum = Posit64(0.0);
-                for (int k = -radius; k <= radius; ++k) {
-                    int pixelY = y + k;
-                    if (pixelY < 0) pixelY = 0; // 邊界處理：複製邊界像素
-                    if (pixelY >= height) pixelY = height - 1; // 邊界處理：複製邊界像素
-
-                    sum += inputData[(pixelY * width + x) * channels + c] * kernel[k + radius];
-                }
-                outputData[(y * width + x) * channels + c] = sum;
-            }
-        }
-    }
-}
-
-// 高斯模糊主函式 (Posit64 版本) - 回傳 Posit64 陣列結果
-Posit64* gaussianBlurPosit64Stb(int width, int height, const unsigned char* rgbData, double sigma, int radius) {
-    int channels = 3; // RGB 影像有 3 個通道
-    std::vector<Posit64> kernel = generateGaussianKernelPosit64(radius, sigma);
-
-    Posit64* tempHorizontal = new Posit64[width * height * channels];
-    // 直接在函式內部建立 tempVertical，並回傳
-    Posit64* tempVertical = new Posit64[width * height * channels];
-
-    // 先進行水平模糊
-    applyGaussianBlurHorizontalPosit64(width, height, rgbData, tempHorizontal, kernel, channels);
-    // 再進行垂直模糊
-    applyGaussianBlurVerticalPosit64(width, height, tempHorizontal, tempVertical, kernel, channels);
-
-    delete[] tempHorizontal;
-    // 不在此處轉換回 unsigned char，而是直接回傳 Posit64 結果
-    return tempVertical;
-}
-
-// 函式：生成一維高斯核心 (Posit32)
-std::vector<Posit32> generateGaussianKernelPosit32(int radius, float sigma) {
-    int kernelSize = 2 * radius + 1;
-    std::vector<Posit32> kernel(kernelSize);
-    Posit32 sum = Posit32(0.0);
-
-    for (int i = 0; i < kernelSize; ++i) {
-        Posit32 x = i - radius;
-        kernel[i] = Posit_exp(-(x * x) / (2 * Posit32(sigma) * Posit32(sigma)));
-        sum += kernel[i];
-    }
-
-    // 歸一化核心
-    for (int i = 0; i < kernelSize; ++i) {
-        kernel[i] /= sum;
-    }
-    return kernel;
-}
-
-// 函式：應用高斯模糊 (水平方向) (Posit32)
-void applyGaussianBlurHorizontalPosit32(int width, int height, const unsigned char* inputData, Posit32* outputData, const std::vector<Posit32>& kernel, int channels) {
-    int radius = (kernel.size() - 1) / 2;
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            for (int c = 0; c < channels; ++c) {
-                Posit32 sum = Posit32(0.0);
-                for (int k = -radius; k <= radius; ++k) {
-                    int pixelX = x + k;
-                    if (pixelX < 0) pixelX = 0;
-                    if (pixelX >= width) pixelX = width - 1;
-
-                    sum += (Posit32(inputData[(y * width + pixelX) * channels + c]) / Posit32(1.0)) * kernel[k + radius];
-                }
-                outputData[(y * width + x) * channels + c] = sum;
-            }
-        }
-    }
-}
-
-// 函式：應用高斯模糊 (垂直方向) (Posit32)
-void applyGaussianBlurVerticalPosit32(int width, int height, const Posit32* inputData, Posit32* outputData, const std::vector<Posit32>& kernel, int channels) {
-    int radius = (kernel.size() - 1) / 2;
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            for (int c = 0; c < channels; ++c) {
-                Posit32 sum = Posit32(0.0);
-                for (int k = -radius; k <= radius; ++k) {
-                    int pixelY = y + k;
-                    if (pixelY < 0) pixelY = 0;
-                    if (pixelY >= height) pixelY = height - 1;
-
-                    sum += inputData[(pixelY * width + x) * channels + c] * kernel[k + radius];
-                }
-                outputData[(y * width + x) * channels + c] = sum;
-            }
-        }
-    }
-}
-
-// 高斯模糊主函式 (Posit32 版本) - 回傳 Posit32 陣列結果
-Posit32* gaussianBlurPosit32Stb(int width, int height, const unsigned char* rgbData, double sigma, int radius) {
-    int channels = 3;
-    std::vector<Posit32> kernel = generateGaussianKernelPosit32(radius, sigma);
-
-    Posit32* tempHorizontal = new Posit32[width * height * channels];
-    Posit32* tempVertical = new Posit32[width * height * channels];
-
-    applyGaussianBlurHorizontalPosit32(width, height, rgbData, tempHorizontal, kernel, channels);
-    applyGaussianBlurVerticalPosit32(width, height, tempHorizontal, tempVertical, kernel, channels);
-
-    delete[] tempHorizontal;
-    return tempVertical;
-}
-
-// 函式：生成一維高斯核心 (Posit16_1)
-std::vector<Posit16_1> generateGaussianKernelPosit16_1(int radius, float sigma) {
-    int kernelSize = 2 * radius + 1;
-    std::vector<Posit16_1> kernel(kernelSize);
-    Posit16_1 sum = Posit16_1(0.0);
-
-    for (int i = 0; i < kernelSize; ++i) {
-        Posit16_1 x = i - radius;
-        kernel[i] = Posit_exp(-(x * x) / (2 * Posit16_1(sigma) * Posit16_1(sigma)));
-        sum += kernel[i];
-    }
-
-    // 歸一化核心
-    for (int i = 0; i < kernelSize; ++i) {
-        kernel[i] /= sum;
-    }
-    return kernel;
-}
-
-// 函式：應用高斯模糊 (水平方向) (Posit16_1)
-void applyGaussianBlurHorizontalPosit16_1(int width, int height, const unsigned char* inputData, Posit16_1* outputData, const std::vector<Posit16_1>& kernel, int channels) {
-    int radius = (kernel.size() - 1) / 2;
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            for (int c = 0; c < channels; ++c) {
-                Posit16_1 sum = Posit16_1(0.0);
-                for (int k = -radius; k <= radius; ++k) {
-                    int pixelX = x + k;
-                    if (pixelX < 0) pixelX = 0;
-                    if (pixelX >= width) pixelX = width - 1;
-
-                    sum += (Posit16_1(inputData[(y * width + pixelX) * channels + c]) / Posit16_1(1.0)) * kernel[k + radius];
-                }
-                outputData[(y * width + x) * channels + c] = sum;
-            }
-        }
-    }
-}
-
-// 函式：應用高斯模糊 (垂直方向) (Posit16_1)
-void applyGaussianBlurVerticalPosit16_1(int width, int height, const Posit16_1* inputData, Posit16_1* outputData, const std::vector<Posit16_1>& kernel, int channels) {
-    int radius = (kernel.size() - 1) / 2;
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            for (int c = 0; c < channels; ++c) {
-                Posit16_1 sum = Posit16_1(0.0);
-                for (int k = -radius; k <= radius; ++k) {
-                    int pixelY = y + k;
-                    if (pixelY < 0) pixelY = 0;
-                    if (pixelY >= height) pixelY = height - 1;
-
-                    sum += inputData[(pixelY * width + x) * channels + c] * kernel[k + radius];
-                }
-                outputData[(y * width + x) * channels + c] = sum;
-            }
-        }
-    }
-}
-
-// 高斯模糊主函式 (Posit16_1 版本) - 回傳 Posit16_1 陣列結果
-Posit16_1* gaussianBlurPosit16_1Stb(int width, int height, const unsigned char* rgbData, double sigma, int radius) {
-    int channels = 3;
-    std::vector<Posit16_1> kernel = generateGaussianKernelPosit16_1(radius, sigma);
-
-    Posit16_1* tempHorizontal = new Posit16_1[width * height * channels];
-    Posit16_1* tempVertical = new Posit16_1[width * height * channels];
-
-    applyGaussianBlurHorizontalPosit16_1(width, height, rgbData, tempHorizontal, kernel, channels);
-    applyGaussianBlurVerticalPosit16_1(width, height, tempHorizontal, tempVertical, kernel, channels);
-
-    delete[] tempHorizontal;
-    return tempVertical;
-}
-
-// 函式：生成一維高斯核心 (Posit16_2)
-std::vector<Posit16_2> generateGaussianKernelPosit16_2(int radius, float sigma) {
-    int kernelSize = 2 * radius + 1;
-    std::vector<Posit16_2> kernel(kernelSize);
-    Posit16_2 sum = Posit16_2(0.0);
-
-    for (int i = 0; i < kernelSize; ++i) {
-        Posit16_2 x = i - radius;
-        kernel[i] = Posit_exp(-(x * x) / (2 * Posit16_2(sigma) * Posit16_2(sigma)));
-        sum += kernel[i];
-    }
-
-    // 歸一化核心
-    for (int i = 0; i < kernelSize; ++i) {
-        kernel[i] /= sum;
-    }
-    return kernel;
-}
-
-// 函式：應用高斯模糊 (水平方向) (Posit16_2)
-void applyGaussianBlurHorizontalPosit16_2(int width, int height, const unsigned char* inputData, Posit16_2* outputData, const std::vector<Posit16_2>& kernel, int channels) {
-    int radius = (kernel.size() - 1) / 2;
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            for (int c = 0; c < channels; ++c) {
-                Posit16_2 sum = Posit16_2(0.0);
-                for (int k = -radius; k <= radius; ++k) {
-                    int pixelX = x + k;
-                    if (pixelX < 0) pixelX = 0;
-                    if (pixelX >= width) pixelX = width - 1;
-
-                    sum += (Posit16_2(inputData[(y * width + pixelX) * channels + c]) / Posit16_2(1.0)) * kernel[k + radius];
-                }
-                outputData[(y * width + x) * channels + c] = sum;
-            }
-        }
-    }
-}
-
-// 函式：應用高斯模糊 (垂直方向) (Posit16_2)
-void applyGaussianBlurVerticalPosit16_2(int width, int height, const Posit16_2* inputData, Posit16_2* outputData, const std::vector<Posit16_2>& kernel, int channels) {
-    int radius = (kernel.size() - 1) / 2;
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            for (int c = 0; c < channels; ++c) {
-                Posit16_2 sum = Posit16_2(0.0);
-                for (int k = -radius; k <= radius; ++k) {
-                    int pixelY = y + k;
-                    if (pixelY < 0) pixelY = 0;
-                    if (pixelY >= height) pixelY = height - 1;
-
-                    sum += inputData[(pixelY * width + x) * channels + c] * kernel[k + radius];
-                }
-                outputData[(y * width + x) * channels + c] = sum;
-            }
-        }
-    }
-}
-
-// 高斯模糊主函式 (Posit16_2 版本) - 回傳 Posit16_2 陣列結果
-Posit16_2* gaussianBlurPosit16_2Stb(int width, int height, const unsigned char* rgbData, double sigma, int radius) {
-    int channels = 3;
-    std::vector<Posit16_2> kernel = generateGaussianKernelPosit16_2(radius, sigma);
-
-    Posit16_2* tempHorizontal = new Posit16_2[width * height * channels];
-    Posit16_2* tempVertical = new Posit16_2[width * height * channels];
-
-    applyGaussianBlurHorizontalPosit16_2(width, height, rgbData, tempHorizontal, kernel, channels);
-    applyGaussianBlurVerticalPosit16_2(width, height, tempHorizontal, tempVertical, kernel, channels);
-
-    delete[] tempHorizontal;
-    return tempVertical;
-}
-
-// 函式：生成一維高斯核心 (MPFR 版本)
-std::vector<mpfr_t> generateGaussianKernelMpfr(int radius, mpfr_t sigma, mpfr_prec_t prec) {
-    int kernelSize = 2 * radius + 1;
-    std::vector<mpfr_t> kernel(kernelSize); // 儲存 mpfr_t 的 vector
-
-    mpfr_t sum;
-    mpfr_init2(sum, prec); // 初始化 sum
-    mpfr_set_d(sum, 0.0, MPFR_RNDN); // sum 歸零
-
-    mpfr_t x_val, term, sigma_sq, two_sigma_sq;
-    mpfr_init2(x_val, prec);
-    mpfr_init2(term, prec);
-    mpfr_init2(sigma_sq, prec);
-    mpfr_init2(two_sigma_sq, prec);
-
-    mpfr_mul(sigma_sq, sigma, sigma, MPFR_RNDN); // sigma * sigma
-    mpfr_mul_d(two_sigma_sq, sigma_sq, 2.0, MPFR_RNDN); // 2 * sigma * sigma
-
-    for (int i = 0; i < kernelSize; ++i) {
-        mpfr_init2(kernel[i], prec); // 初始化 vector 中的每個 mpfr_t
-        mpfr_set_d(x_val, static_cast<double>(i - radius), MPFR_RNDN); // x = i - radius
-
-        // 計算 -(x * x) / (2 * sigma * sigma)
-        mpfr_mul(term, x_val, x_val, MPFR_RNDN); // x * x
-        mpfr_neg(term, term, MPFR_RNDN); // -(x * x)
-        mpfr_div(term, term, two_sigma_sq, MPFR_RNDN); // -(x * x) / (2 * sigma * sigma)
-
-        mpfr_exp(kernel[i], term, MPFR_RNDN); // kernel[i] = exp(...)
-        mpfr_add(sum, sum, kernel[i], MPFR_RNDN); // sum += kernel[i]
-    }
-
-    // 歸一化核心
-    for (int i = 0; i < kernelSize; ++i) {
-        mpfr_div(kernel[i], kernel[i], sum, MPFR_RNDN); // kernel[i] /= sum
-    }
-
-    // 清除臨時變數
-    mpfr_clear(sum);
-    mpfr_clear(x_val);
-    mpfr_clear(term);
-    mpfr_clear(sigma_sq);
-    mpfr_clear(two_sigma_sq);
-
-    return kernel;
-}
-
-// 函式：應用高斯模糊 (水平方向) (MPFR 版本)
-void applyGaussianBlurHorizontalMpfr(int width, int height, const mpfr_t* inputData, mpfr_t* outputData, const std::vector<mpfr_t>& kernel, int channels, mpfr_prec_t prec) {
-    int radius = (kernel.size() - 1) / 2;
-
-    mpfr_t sum_pixel, temp_val; // 臨時變數
-    mpfr_init2(sum_pixel, prec);
-    mpfr_init2(temp_val, prec);
-
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            for (int c = 0; c < channels; ++c) {
-                mpfr_set_d(sum_pixel, 0.0, MPFR_RNDN); // 每個新像素的 sum 歸零
-
-                for (int k = -radius; k <= radius; ++k) {
-                    int pixelX = x + k;
-                    // 邊界處理：複製邊界像素
-                    if (pixelX < 0) pixelX = 0;
-                    if (pixelX >= width) pixelX = width - 1;
-
-                    // sum += inputData[...] * kernel[...]
-                    // 注意 inputData 是已經正規化過的 mpfr_t 陣列
-                    mpfr_mul(temp_val, inputData[(y * width + pixelX) * channels + c], kernel[k + radius], MPFR_RNDN);
-                    mpfr_add(sum_pixel, sum_pixel, temp_val, MPFR_RNDN);
-                }
-                mpfr_set(outputData[(y * width + x) * channels + c], sum_pixel, MPFR_RNDN); // 將結果設置到 outputData
-            }
-        }
-    }
-    mpfr_clear(sum_pixel);
-    mpfr_clear(temp_val);
-}
-
-// 函式：應用高斯模糊 (垂直方向) (MPFR 版本)
-void applyGaussianBlurVerticalMpfr(int width, int height, const mpfr_t* inputData, mpfr_t* outputData, const std::vector<mpfr_t>& kernel, int channels, mpfr_prec_t prec) {
-    int radius = (kernel.size() - 1) / 2;
-
-    mpfr_t sum_pixel, temp_val; // 臨時變數
-    mpfr_init2(sum_pixel, prec);
-    mpfr_init2(temp_val, prec);
-
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            for (int c = 0; c < channels; ++c) {
-                mpfr_set_d(sum_pixel, 0.0, MPFR_RNDN); // 每個新像素的 sum 歸零
-
-                for (int k = -radius; k <= radius; ++k) {
-                    int pixelY = y + k;
-                    // 邊界處理：複製邊界像素
-                    if (pixelY < 0) pixelY = 0;
-                    if (pixelY >= height) pixelY = height - 1;
-
-                    // sum += inputData[...] * kernel[...]
-                    mpfr_mul(temp_val, inputData[(pixelY * width + x) * channels + c], kernel[k + radius], MPFR_RNDN);
-                    mpfr_add(sum_pixel, sum_pixel, temp_val, MPFR_RNDN);
-                }
-                mpfr_set(outputData[(y * width + x) * channels + c], sum_pixel, MPFR_RNDN); // 將結果設置到 outputData
-            }
-        }
-    }
-    mpfr_clear(sum_pixel);
-    mpfr_clear(temp_val);
-}
-
-// 高斯模糊主函式 (MPFR 版本) - 回傳 MPFR 陣列結果
-mpfr_t* gaussianBlurMpfrStb(int width, int height, const unsigned char* rgbData, double sigma_double, int radius) {
-    mpfr_prec_t prec = 256;
-    int channels = 3; // RGB 影像有 3 個通道
-
-    // 1. 將輸入的 unsigned char 影像轉換為 MPFR 格式並正規化 (0-1)
-    mpfr_t* inputMpfrData = new mpfr_t[width * height * channels];
-    mpfr_t div1;
-    mpfr_init2(div1, prec);
-    mpfr_set_d(div1, 1.0, MPFR_RNDN);
-
-    for (int i = 0; i < width * height * channels; ++i) {
-        mpfr_init2(inputMpfrData[i], prec);
-        mpfr_set_d(inputMpfrData[i], static_cast<double>(rgbData[i]), MPFR_RNDN);
-        mpfr_div(inputMpfrData[i], inputMpfrData[i], div1, MPFR_RNDN); // 正規化
-    }
-    mpfr_clear(div1);
-
-    // 準備 sigma 的 MPFR 版本
-    mpfr_t sigma_mpfr;
-    mpfr_init2(sigma_mpfr, prec);
-    mpfr_set_d(sigma_mpfr, sigma_double, MPFR_RNDN);
-
-    // 2. 生成高斯核心
-    std::vector<mpfr_t> kernel = generateGaussianKernelMpfr(radius, sigma_mpfr, prec);
-
-    // 3. 準備中間結果的 MPFR 陣列
-    mpfr_t* tempHorizontalMpfr = new mpfr_t[width * height * channels];
-    // 直接在函式內部建立 tempVerticalMpfr，並回傳
-    mpfr_t* tempVerticalMpfr = new mpfr_t[width * height * channels];
-
-    // 初始化中間結果的 mpfr_t 元素
-    for (int i = 0; i < width * height * channels; ++i) {
-        mpfr_init2(tempHorizontalMpfr[i], prec);
-        mpfr_init2(tempVerticalMpfr[i], prec);
-    }
-
-    // 4. 先進行水平模糊
-    applyGaussianBlurHorizontalMpfr(width, height, inputMpfrData, tempHorizontalMpfr, kernel, channels, prec);
-    // 5. 再進行垂直模糊
-    applyGaussianBlurVerticalMpfr(width, height, tempHorizontalMpfr, tempVerticalMpfr, kernel, channels, prec);
-
-    // 7. 清除所有 MPFR 變數和陣列
-    mpfr_clear(sigma_mpfr);
-
-    for (int i = 0; i < width * height * channels; ++i) {
-        mpfr_clear(inputMpfrData[i]);
-        mpfr_clear(tempHorizontalMpfr[i]);
-        // tempVerticalMpfr 將被回傳，在呼叫者處清除
-    }
-    delete[] inputMpfrData;
-    delete[] tempHorizontalMpfr;
-
-    // 清除 kernel 中的 mpfr_t
-    for (size_t i = 0; i < kernel.size(); ++i) {
-        mpfr_clear(kernel[i]);
-    }
-    
-    // 回傳 MPFR 浮點數結果
-    return tempVerticalMpfr;
 }
 
 int main() {
@@ -627,52 +150,22 @@ int main() {
                 analyzeFloatExponentDistribution("原始影像", originalFloatData, pixelCount, exponentOutputFile);
 
                 // ***** 獲取不同精度的高斯模糊浮點數結果 *****
-                double* blurredFloatResult = gaussianBlurFloatStb(width, height, rgbData, sigma, radius);
-                // Posit 格式的分析需要將 Posit 轉為 double
-                double* floatDoubleData = new double[pixelCount];
-                for(int i = 0; i < pixelCount; ++i) {
-                    floatDoubleData[i] = (double)blurredFloatResult[i];
-                }
-                analyzeFloatExponentDistribution("IEEE高斯模糊", floatDoubleData, pixelCount, exponentOutputFile);
-
-
-                Posit64* blurredPosit64Result = gaussianBlurPosit64Stb(width, height, rgbData, sigma, radius);
-                double* posit64DoubleData = new double[pixelCount];
-                for(int i = 0; i < pixelCount; ++i) {
-                    posit64DoubleData[i] = (double)blurredPosit64Result[i];
-                }
-                analyzeFloatExponentDistribution("Posit64高斯模糊", posit64DoubleData, pixelCount, exponentOutputFile);
+                double* blurredFloatResult = gaussianBlur(width, height, rgbData, sigma, radius);
                 
-                Posit32* blurredPosit32Result = gaussianBlurPosit32Stb(width, height, rgbData, sigma, radius);
-                double* posit32DoubleData = new double[pixelCount];
-                for(int i = 0; i < pixelCount; ++i) {
-                    posit32DoubleData[i] = (double)blurredPosit32Result[i];
+                Posit64* blurredPosit64Result = new Posit64[pixelCount];
+                Posit32* blurredPosit32Result = new Posit32[pixelCount];
+                Posit16_1* blurredPosit16_1Result = new Posit16_1[pixelCount];
+                Posit16_2* blurredPosit16_2Result = new Posit16_2[pixelCount];
+                mpfr_t* blurredMpfrResult = new mpfr_t[pixelCount]; // mpfr_t 需要特別處理
+
+                for (int i = 0; i < pixelCount; i++) {
+                    blurredPosit64Result[i] = Posit64(blurredFloatResult[i]);
+                    blurredPosit32Result[i] = Posit32(blurredFloatResult[i]);
+                    blurredPosit16_1Result[i] = Posit16_1(blurredFloatResult[i]);
+                    blurredPosit16_2Result[i] = Posit16_2(blurredFloatResult[i]);
+                    mpfr_init2(blurredMpfrResult[i], 256);
+                    mpfr_set_d(blurredMpfrResult[i], blurredFloatResult[i], MPFR_RNDN);
                 }
-                analyzeFloatExponentDistribution("Posit32高斯模糊", posit32DoubleData, pixelCount, exponentOutputFile);
-
-
-                Posit16_1* blurredPosit16_1Result = gaussianBlurPosit16_1Stb(width, height, rgbData, sigma, radius);
-                double* posit16_1DoubleData = new double[pixelCount];
-                for(int i = 0; i < pixelCount; ++i) {
-                    posit16_1DoubleData[i] = (double)blurredPosit16_1Result[i];
-                }
-                analyzeFloatExponentDistribution("Posit16_1高斯模糊", posit16_1DoubleData, pixelCount, exponentOutputFile);
-
-                Posit16_2* blurredPosit16_2Result = gaussianBlurPosit16_2Stb(width, height, rgbData, sigma, radius);
-                double* posit16_2DoubleData = new double[pixelCount];
-                for(int i = 0; i < pixelCount; ++i) {
-                    posit16_2DoubleData[i] = (double)blurredPosit16_2Result[i];
-                }
-                analyzeFloatExponentDistribution("Posit16_2高斯模糊", posit16_2DoubleData, pixelCount, exponentOutputFile);
-
-
-                mpfr_t* blurredMpfrResult = gaussianBlurMpfrStb(width, height, rgbData, sigma, radius);
-                // MPFR 的分析需要將 MPFR 轉為 double
-                double* mpfrDoubleData = new double[pixelCount];
-                for(int i = 0; i < pixelCount; ++i) {
-                    mpfrDoubleData[i] = mpfr_get_d(blurredMpfrResult[i], MPFR_RNDN);
-                }
-                analyzeFloatExponentDistribution("MPFR高斯模糊", mpfrDoubleData, pixelCount, exponentOutputFile);
 
                 // 將數值轉str並進行誤差運算 (在浮點數層級)
                 vector<double> ieeeRMSEVals, pos64RMSEVals, pos32RMSEVals, pos16_1RMSEVals, pos16_2RMSEVals;
@@ -893,22 +386,16 @@ int main() {
                 // ***** 記憶體釋放 *****
                 stbi_image_free(rgbData);
                 delete[] originalFloatData;
-                delete[] floatDoubleData;
                 delete[] blurredFloatResult;
                 delete[] blurredPosit64Result;
-                delete[] posit64DoubleData;
                 delete[] blurredPosit32Result;
-                delete[] posit32DoubleData;
                 delete[] blurredPosit16_1Result;
-                delete[] posit16_1DoubleData;
                 delete[] blurredPosit16_2Result;
-                delete[] posit16_2DoubleData;
                 // MPFR 陣列需要逐個清除 mpfr_t 元素，然後再刪除陣列本身
                 for (int i = 0; i < width * height * 3; ++i) {
                     mpfr_clear(blurredMpfrResult[i]);
                 }
                 delete[] blurredMpfrResult;
-                delete[] mpfrDoubleData;
                 delete[] blurredRgbDataFloat;
                 delete[] blurredRgbDataPosit64;
                 delete[] blurredRgbDataPosit32;
