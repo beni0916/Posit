@@ -27,7 +27,7 @@ int main() {
     outputFile << std::fixed << std::setprecision(30);
     
     // 寫入 CSV 檔案的標頭
-    outputFile << "t,x,y,z" << std::endl;
+    outputFile << "steps,x,y,z" << std::endl;
 
     // 初始條件和步長
     Posit64 x = Posit64(0.0);
@@ -42,21 +42,34 @@ int main() {
 
     for (int i = 0; i < steps; ++i) {
         // 計算當前時間點的變化率
-        Posit64 dxdt, dydt, dzdt;
-        lorenz_equations(x, y, z, dxdt, dydt, dzdt);
-        
-        // 歐拉法核心：同時更新 x, y, z 的值
-        Posit64 nextX = x + h * dxdt;
-        Posit64 nextY = y + h * dydt;
-        Posit64 nextZ = z + h * dzdt;
+        Posit64 k1x, k1y, k1z;
+        Posit64 k2x, k2y, k2z;
+        Posit64 k3x, k3y, k3z;
+        Posit64 k4x, k4y, k4z;
 
-        x = nextX;
-        y = nextY;
-        z = nextZ;
+        // k1
+        lorenz_equations(x, y, z, k1x, k1y, k1z);
+
+        // k2
+        lorenz_equations(x + 0.5 * h * k1x, y + 0.5 * h * k1y, z + 0.5 * h * k1z,
+                         k2x, k2y, k2z);
+
+        // k3
+        lorenz_equations(x + 0.5 * h * k2x, y + 0.5 * h * k2y, z + 0.5 * h * k2z,
+                         k3x, k3y, k3z);
+
+        // k4
+        lorenz_equations(x + h * k3x, y + h * k3y, z + h * k3z,
+                         k4x, k4y, k4z);
+
+        // 更新
+        x += (h / 6.0) * (k1x + 2*k2x + 2*k3x + k4x);
+        y += (h / 6.0) * (k1y + 2*k2y + 2*k3y + k4y);
+        z += (h / 6.0) * (k1z + 2*k2z + 2*k3z + k4z);
 
         // 將結果寫入檔案
-        outputFile << (i + 1) * h << "," << x << "," << y << "," << z << std::endl;
-        std::cout << std::fixed << std::setprecision(30) << (i + 1) * h << "," << x << "," << y << "," << z << std::endl;
+        outputFile << i+1 << "," << x << "," << y << "," << z << std::endl;
+        std::cout << std::fixed << std::setprecision(30) << i+1 << "," << x << "," << y << "," << z << std::endl;
     }
 
     // 關閉檔案

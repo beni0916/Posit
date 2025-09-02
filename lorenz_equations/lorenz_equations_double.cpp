@@ -15,52 +15,54 @@ void lorenz_equations(double x, double y, double z, double& dxdt, double& dydt, 
 }
 
 int main() {
-    // 輸出檔案
     std::ofstream outputFile("lorenz_output_double.csv");
     if (!outputFile.is_open()) {
         std::cerr << "Error: Unable to open file for writing." << std::endl;
         return 1;
     }
 
-    // 設置輸出格式：使用科學記號且精確到 15 位小數
     outputFile << std::fixed << std::setprecision(30);
-    
-    // 寫入 CSV 檔案的標頭
-    outputFile << "t,x,y,z" << std::endl;
+    outputFile << "steps,x,y,z" << std::endl;
 
-    // 初始條件和步長
-    double x = 0.0;
-    double y = 1.0;
-    double z = 1.0; 
-    double h = 0.01; // 時間步長
-    int steps = 10000; // 迭代次數，這裡增加到 10000 以獲得更完整的軌跡
+    double x = 0.0, y = 1.0, z = 1.0;
+    double h = 0.01;
+    int steps = 10000;
 
-    // 寫入初始值
     outputFile << 0 << "," << x << "," << y << "," << z << std::endl;
-    std::cout << std::fixed << std::setprecision(30) << 0 << "," << x << "," << y << "," << z << std::endl;
+    std::cout << std::fixed << std::setprecision(30)
+              << 0 << "," << x << "," << y << "," << z << std::endl;
 
-    for (int i = 0; i < steps; ++i) {
-        // 計算當前時間點的變化率
-        double dxdt, dydt, dzdt;
-        lorenz_equations(x, y, z, dxdt, dydt, dzdt);
-        
-        // 歐拉法核心：同時更新 x, y, z 的值
-        double nextX = x + h * dxdt;
-        double nextY = y + h * dydt;
-        double nextZ = z + h * dzdt;
+    for (int i = 0; i < steps; i++) {
+        double k1x, k1y, k1z;
+        double k2x, k2y, k2z;
+        double k3x, k3y, k3z;
+        double k4x, k4y, k4z;
 
-        x = nextX;
-        y = nextY;
-        z = nextZ;
+        // k1
+        lorenz_equations(x, y, z, k1x, k1y, k1z);
 
-        // 將結果寫入檔案
-        outputFile << (i + 1) * h << "," << x << "," << y << "," << z << std::endl;
-        std::cout << std::fixed << std::setprecision(30) << (i + 1) * h << "," << x << "," << y << "," << z << std::endl;
+        // k2
+        lorenz_equations(x + 0.5 * h * k1x, y + 0.5 * h * k1y, z + 0.5 * h * k1z,
+                         k2x, k2y, k2z);
+
+        // k3
+        lorenz_equations(x + 0.5 * h * k2x, y + 0.5 * h * k2y, z + 0.5 * h * k2z,
+                         k3x, k3y, k3z);
+
+        // k4
+        lorenz_equations(x + h * k3x, y + h * k3y, z + h * k3z,
+                         k4x, k4y, k4z);
+
+        // 更新
+        x += (h / 6.0) * (k1x + 2*k2x + 2*k3x + k4x);
+        y += (h / 6.0) * (k1y + 2*k2y + 2*k3y + k4y);
+        z += (h / 6.0) * (k1z + 2*k2z + 2*k3z + k4z);
+
+        outputFile << i+1 << "," << x << "," << y << "," << z << std::endl;
+        std::cout << std::fixed << std::setprecision(30) << i+1 << "," << x << "," << y << "," << z << std::endl;
     }
 
-    // 關閉檔案
     outputFile.close();
     std::cout << "Data has been successfully written to lorenz_output_double.csv" << std::endl;
-
     return 0;
 }
