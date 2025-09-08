@@ -1,0 +1,210 @@
+CXX = g++
+CXXFLAGS = -std=c++17 -o
+LIBFLAGS = -lgmp -lmpfr
+
+RES_COSPI = Result_cosPi
+RES_SINPI = Result_sinPi
+RES_TANPI = Result_tanPi
+
+RES_COS = Result_cos
+RES_SIN = Result_sin
+RES_TAN = Result_tan
+
+RES_ASINPI = Result_asinPi
+RES_ACOSPI = Result_acosPi
+RES_ATANPI = Result_atanPi
+
+RES_EXP = Result_exp
+RES_EXPM1 = Result_expM1
+RES_EXP2 = Result_exp2
+RES_EXP2M1 = Result_exp2M1
+RES_EXP10 = Result_exp10
+RES_EXP10M1 = Result_exp10M1
+
+RES_SQRT = Result_sqrt
+RES_RSQRT = Result_rSqrt
+
+RES_LOGP1 = Result_logP1
+RES_LOG2 = Result_log2
+RES_LOG2P1 = Result_log2P1
+RES_LOG10P1 = Result_log10P1
+
+RES_HYPOT = Result_hypot
+RES_ATAN2 = Result_atan2
+RES_ATAN2PI = Result_atan2Pi
+
+RES_COMPOUND = Result_compound
+RES_ROOTN = Result_rootN
+RES_POW = Result_pow
+
+SRC_RES_COSPI = Result_cosPi.cpp
+SRC_RES_SINPI = Result_sinPi.cpp
+SRC_RES_TANPI = Result_tanPi.cpp
+
+SRC_RES_COS = Result_cos.cpp
+SRC_RES_SIN = Result_sin.cpp
+SRC_RES_TAN = Result_tan.cpp
+
+SRC_RES_ASINPI = Result_asinPi.cpp
+SRC_RES_ACOSPI = Result_acosPi.cpp
+SRC_RES_ATANPI = Result_atanPi.cpp
+
+SRC_RES_EXP = Result_exp.cpp
+SRC_RES_EXPM1 = Result_expM1.cpp
+SRC_RES_EXP2 = Result_exp2.cpp
+SRC_RES_EXP2M1 = Result_exp2M1.cpp
+SRC_RES_EXP10 = Result_exp10.cpp
+SRC_RES_EXP10M1 = Result_exp10M1.cpp
+
+SRC_RES_SQRT = Result_sqrt.cpp
+SRC_RES_RSQRT = Result_rSqrt.cpp
+
+SRC_RES_LOGP1 = Result_logP1.cpp
+SRC_RES_LOG2 = Result_log2.cpp
+SRC_RES_LOG2P1 = Result_log2P1.cpp
+SRC_RES_LOG10P1 = Result_log10P1.cpp
+
+SRC_RES_HYPOT = Result_hypot.cpp
+SRC_RES_ATAN2 = Result_atan2.cpp
+SRC_RES_ATAN2PI = Result_atan2Pi.cpp
+
+SRC_RES_COMPOUND = Result_compound.cpp
+SRC_RES_ROOTN = Result_rootN.cpp
+SRC_RES_POW = Result_pow.cpp
+
+SRC_SINPI = Posit_sinPi.cpp
+SRC_COSPI = Posit_cosPi.cpp
+SRC_TANPI = Posit_tanPi.cpp
+
+SRC_SIN = Posit_sin.cpp
+SRC_COS = Posit_cos.cpp
+SRC_TAN = Posit_tan.cpp
+
+SRC_ATAN = Posit_atan.cpp
+
+SRC_ASINPI = Posit_asinPi.cpp
+SRC_ACOSPI = Posit_acosPi.cpp
+SRC_ATANPI = Posit_atanPi.cpp
+
+SRC_KER_SIN = __kernel_sin.cpp
+SRC_KER_COS = __kernel_cos.cpp
+SRC_KER_TAN = __kernel_tan.cpp
+
+SRC_EXP = Posit_exp.cpp
+SRC_EXPM1 = Posit_expMinus1.cpp
+SRC_EXP2 = Posit_exp2.cpp
+SRC_EXP2M1 = Posit_exp2Minus1.cpp
+SRC_EXP10 = Posit_exp10.cpp
+SRC_EXP10M1 = Posit_exp10Minus1.cpp
+
+SRC_LOG = Posit_log.cpp
+SRC_LOGP1 = Posit_logPlus1.cpp
+SRC_LOG2 = Posit_log2.cpp
+SRC_LOG2P1 = Posit_log2Plus1.cpp
+SRC_LOG10P1 = Posit_log10Plus1.cpp
+
+SRC_HYPOT = Posit_hypot.cpp
+SRC_ATAN2 = Posit_atan2.cpp
+SRC_ATAN2PI = Posit_atan2Pi.cpp
+
+SRC_COMPOUND = Posit_compound.cpp
+SRC_ROOTN = Posit_rootN.cpp
+
+SRC_FABS = Posit_fabs.cpp
+SRC_REMP = Posit_rempio2.cpp
+SRC_REMH = Posit_remhalf.cpp
+SRC_SQRT = Posit_sqrt.cpp
+SRC_RSQRT = Posit_rSqrt.cpp
+SRC_FLOOR = Posit_floor.cpp
+SRC_POW = Posit_pow.cpp
+SRC_REMP_COS = Posit_rempio2_cos.cpp
+SRC_REMP_SIN = Posit_rempio2_sin.cpp
+
+SRC_Q_PTOQ = Quire_pToQ.cpp
+SRC_Q_QTOP = Quire_qToP.cpp
+SRC_Q_QADDQ = Quire_qAddQ.cpp
+SRC_Q_QSUBQ = Quire_qSubQ.cpp
+
+all: $(RES_COSPI) $(RES_SINPI) $(RES_TANPI) $(RES_ASINPI) $(RES_ACOSPI) $(RES_ATANPI) $(RES_EXP) $(RES_EXPM1) $(RES_EXP2) $(RES_EXP2M1) $(RES_EXP10) $(RES_EXP10M1) $(RES_RSQRT) $(RES_LOGP1) $(RES_LOG2) $(RES_LOG2P1) $(RES_LOG10P1) $(RES_HYPOT) $(RES_ATAN2) $(RES_ATAN2PI) $(RES_COMPOUND) $(RES_ROOTN) $(RES_POW) $(RES_COS) $(RES_SIN) $(RES_SQRT)
+
+$(RES_COSPI):
+	$(CXX) $(CXXFLAGS) $(RES_COSPI) $(SRC_RES_COSPI) $(SRC_COSPI) $(SRC_KER_SIN) $(SRC_KER_COS) $(SRC_FABS) $(SRC_REMP_COS) $(LIBFLAGS)
+
+$(RES_SINPI):
+	$(CXX) $(CXXFLAGS) $(RES_SINPI) $(SRC_RES_SINPI) $(SRC_SINPI) $(SRC_KER_SIN) $(SRC_KER_COS) $(SRC_FABS) $(SRC_REMP_SIN) $(LIBFLAGS)
+	
+$(RES_TANPI):
+	$(CXX) $(CXXFLAGS) $(RES_TANPI) $(SRC_RES_TANPI) $(SRC_TANPI) $(SRC_KER_TAN) $(SRC_FABS) $(SRC_REMH) $(LIBFLAGS)
+
+$(RES_ASINPI):
+	$(CXX) $(CXXFLAGS) $(RES_ASINPI) $(SRC_RES_ASINPI) $(SRC_ASINPI) $(SRC_FABS) $(SRC_SQRT) $(LIBFLAGS)
+
+$(RES_ACOSPI):
+	$(CXX) $(CXXFLAGS) $(RES_ACOSPI) $(SRC_RES_ACOSPI) $(SRC_ACOSPI) $(SRC_FABS) $(SRC_SQRT) $(LIBFLAGS)
+
+$(RES_ATANPI):
+	$(CXX) $(CXXFLAGS) $(RES_ATANPI) $(SRC_RES_ATANPI) $(SRC_ATANPI) $(SRC_FABS) $(SRC_SQRT) $(LIBFLAGS)
+
+$(RES_EXP):
+	$(CXX) $(CXXFLAGS) $(RES_EXP) $(SRC_RES_EXP) $(SRC_EXP) $(SRC_EXP2) $(SRC_FLOOR) $(SRC_FABS) $(LIBFLAGS)
+
+$(RES_EXPM1):
+	$(CXX) $(CXXFLAGS) $(RES_EXPM1) $(SRC_RES_EXPM1) $(SRC_EXPM1) $(SRC_EXP2) $(SRC_FLOOR) $(SRC_FABS) $(LIBFLAGS)
+	
+$(RES_EXP2):
+	$(CXX) $(CXXFLAGS) $(RES_EXP2) $(SRC_RES_EXP2) $(SRC_EXP2) $(SRC_FLOOR) $(SRC_FABS) $(LIBFLAGS)
+
+$(RES_EXP2M1):
+	$(CXX) $(CXXFLAGS) $(RES_EXP2M1) $(SRC_RES_EXP2M1) $(SRC_EXP2M1) $(SRC_FLOOR) $(SRC_FABS) $(LIBFLAGS)
+	
+$(RES_EXP10):
+	$(CXX) $(CXXFLAGS) $(RES_EXP10) $(SRC_RES_EXP10) $(SRC_EXP10) $(SRC_EXP) $(LIBFLAGS)
+
+$(RES_EXP10M1):
+	$(CXX) $(CXXFLAGS) $(RES_EXP10M1) $(SRC_RES_EXP10M1) $(SRC_EXP10M1) $(SRC_EXP) $(LIBFLAGS)
+
+$(RES_RSQRT):
+	$(CXX) $(CXXFLAGS) $(RES_RSQRT) $(SRC_RES_RSQRT) $(SRC_RSQRT) $(LIBFLAGS)
+
+$(RES_LOGP1):
+	$(CXX) $(CXXFLAGS) $(RES_LOGP1) $(SRC_RES_LOGP1) $(SRC_LOGP1) $(SRC_SQRT) $(LIBFLAGS) 
+
+$(RES_LOG2):
+	$(CXX) $(CXXFLAGS) $(RES_LOG2) $(SRC_RES_LOG2) $(SRC_LOG2) $(SRC_SQRT) $(LIBFLAGS)
+	
+$(RES_LOG2P1):
+	$(CXX) $(CXXFLAGS) $(RES_LOG2P1) $(SRC_RES_LOG2P1) $(SRC_LOG2P1) $(SRC_SQRT) $(LIBFLAGS)
+
+$(RES_LOG10P1):
+	$(CXX) $(CXXFLAGS) $(RES_LOG10P1) $(SRC_RES_LOG10P1) $(SRC_LOG10P1) $(SRC_LOG) $(SRC_POW) $(SRC_EXP2) $(SRC_SQRT) $(SRC_FLOOR) $(SRC_LOG2) $(SRC_FABS) $(LIBFLAGS)
+
+$(RES_HYPOT):
+	$(CXX) $(CXXFLAGS) $(RES_HYPOT) $(SRC_RES_HYPOT) $(SRC_HYPOT) $(SRC_SQRT) $(SRC_FABS) $(LIBFLAGS)
+
+$(RES_ATAN2):
+	$(CXX) $(CXXFLAGS) $(RES_ATAN2) $(SRC_RES_ATAN2) $(SRC_ATAN2) $(SRC_ATAN) $(SRC_FABS) $(SRC_SQRT) $(LIBFLAGS)
+	
+$(RES_ATAN2PI):
+	$(CXX) $(CXXFLAGS) $(RES_ATAN2PI) $(SRC_RES_ATAN2PI) $(SRC_ATAN2PI) $(SRC_ATAN) $(SRC_FABS) $(SRC_SQRT) $(LIBFLAGS)
+
+$(RES_COMPOUND):
+	$(CXX) $(CXXFLAGS) $(RES_COMPOUND) $(SRC_RES_COMPOUND) $(SRC_COMPOUND) $(SRC_FLOOR) $(SRC_FABS) $(SRC_SQRT) $(SRC_EXP2) $(SRC_LOG2) $(LIBFLAGS)
+
+$(RES_ROOTN):
+	$(CXX) $(CXXFLAGS) $(RES_ROOTN) $(SRC_RES_ROOTN) $(SRC_ROOTN) $(SRC_FLOOR) $(SRC_FABS) $(SRC_SQRT) $(SRC_EXP2) $(SRC_LOG2) $(LIBFLAGS)
+
+$(RES_POW):
+	$(CXX) $(CXXFLAGS) $(RES_POW) $(SRC_RES_POW) $(SRC_POW) $(SRC_FLOOR) $(SRC_FABS) $(SRC_SQRT) $(SRC_EXP2) $(SRC_LOG2) $(LIBFLAGS)
+
+$(RES_COS):
+	$(CXX) $(CXXFLAGS) $(RES_COS) $(SRC_RES_COS) $(SRC_COS) $(SRC_KER_SIN) $(SRC_KER_COS) $(SRC_FABS) $(SRC_REMP_COS) $(LIBFLAGS)
+
+$(RES_SIN):
+	$(CXX) $(CXXFLAGS) $(RES_SIN) $(SRC_RES_SIN) $(SRC_SIN) $(SRC_KER_SIN) $(SRC_KER_COS) $(SRC_FABS) $(SRC_REMP_SIN) $(LIBFLAGS)
+
+$(RES_SQRT):
+	$(CXX) $(CXXFLAGS) $(RES_SQRT) $(SRC_RES_SQRT) $(SRC_SQRT) $(LIBFLAGS)
+
+clean:
+	rm -f $(RES_COSPI) $(RES_SINPI) $(RES_TANPI) $(RES_ASINPI) $(RES_ACOSPI) $(RES_ATANPI) $(RES_EXP) $(RES_EXPM1) $(RES_EXP2) $(RES_EXP2M1) $(RES_EXP10) $(RES_EXP10M1) $(RES_RSQRT) $(RES_LOGP1) $(RES_LOG2) $(RES_LOG2P1) $(RES_LOG10P1) $(RES_HYPOT) $(RES_ATAN2) $(RES_ATAN2PI) $(RES_COMPOUND) $(RES_ROOTN) $(RES_POW) $(RES_COS) $(RES_SIN) $(RES_SQRT)
+
