@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #include "myfdlibm.h"
 #include "t_exp2.h"
 #include <iostream>
