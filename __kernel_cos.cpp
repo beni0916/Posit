@@ -30,6 +30,8 @@ C6  = -1.13596475577881948265e-11; /* 0xBDA8FAE9, 0xBE8838D4 */
 	//if(x < 0) tmp_x = -x;
 	__int32_t ix;
 	GET_HIGH_WORD(ix, tmp_x);
+	 if(P_BIT == 32)
+                GET_LOW_WORD(ix, tmp_x);
 	ix &= 0x7fffffff;			/* ix = |x|'s high word*/
 
 	Posit64 limit1{134217728};  //limit1 = 2**27 
@@ -68,3 +70,4 @@ C6  = -1.13596475577881948265e-11; /* 0xBDA8FAE9, 0xBE8838D4 */
 //     cout << "input: " << x << "\n";
 //     cout << "result: " << __kernel_cos(x, y) << "\n";
 // }
+
