@@ -4,6 +4,8 @@
 #include <mpfr.h>
 using namespace std;
 
+ofstream ofs;
+
 void RMSE(vector <double> &ieee, vector<double> &pos){
     long double sum1 = 0.0L, sum2 = 0.0L;
     int count = 0;
@@ -13,8 +15,9 @@ void RMSE(vector <double> &ieee, vector<double> &pos){
         sum2 += pos[i] * pos[i];
         count++;
     }
-    cout << setw(10) << "Posit: " << sqrtl((sum2/count)) << "\n";
-    cout << setw(10) << "IEEE754: " << sqrtl((sum1/count)) << "\n";
+    ofs << "Posit64RMSE,DoubleRmse" << "\n";
+    ofs << sqrtl((sum2/count)) << "," << sqrtl((sum1/count)) << "\n";
+    ofs.close();
 }
 
 string Difference(string& num1, string& num2) {
@@ -123,11 +126,15 @@ void Run(mt19937 generator, double *interval){
     double input;
     string num1, num2, num3;
     vector<double> IEEE, POS;
+    ofs.open("output/Posit_rSqrt.csv");
+    ofs <<  "index,input,MPFR,Posit64,Double,winner" << "\n";
 
     for(int i = 0; i < 1000; i++){
         target = site(generator);                             
-        uniform_real_distribution<double> range(interval[target], interval[target+1]);  
-        input = range(generator);
+        uniform_real_distribution<double> range(0, 1);  
+        do {
+            input = range(generator);
+        }while(input==0);
 
         num1 = MPFR(input);
         num2 = POSIT(input);
@@ -141,6 +148,17 @@ void Run(mt19937 generator, double *interval){
         double IEEE754_result = stod(Difference(num1, num3));
         IEEE.push_back(IEEE754_result);
         POS.push_back(Posit_result);
+
+        ofs << i << "," << input << "," << num1 << "," << num2 << "," << num3 << ",";
+        if (abs(Posit_result)<abs(IEEE754_result)) {
+            ofs << "Posit" << '\n';
+        }
+        else if (abs(Posit_result)>abs(IEEE754_result)) {
+            ofs << "Double" << '\n';
+        }
+        else {
+            ofs << "EQUAL" << '\n';
+        }
         
         //cout  << setw(10) << "Posit_D: " << fixed << setprecision(15) << Posit_result << "\n";
         //cout  << setw(10) << "IEEE_D: " << fixed << setprecision(15) << IEEE754_result << "\n\n";

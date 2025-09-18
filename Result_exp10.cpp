@@ -14,10 +14,10 @@ void RMSE(vector <double> &ieee, vector<double> &pos){
         sum1 += ieee[i] * ieee[i];
         sum2 += pos[i] * pos[i];
         count++;
-        ofs << i << " " << pos[i] * pos[i] << " " << sum2 << "\n\n";
+        //ofs << i << " " << pos[i] * pos[i] << " " << sum2 << "\n\n";
     }
-    cout << setw(10) << "Posit: " << sqrtl((sum2/count)) << "\n";
-    cout << setw(10) << "IEEE754: " << sqrtl((sum1/count)) << "\n";
+    ofs << "Posit64RMSE,DoubleRmse" << "\n";
+    ofs << sqrtl((sum2/count)) << "," << sqrtl((sum1/count)) << "\n";
     ofs.close();
 }
 
@@ -130,11 +130,12 @@ void Run(mt19937 generator, double *interval){
     double input;
     string num1, num2, num3;
     vector<double> IEEE, POS;
-    ofs.open("output.txt");
+    ofs.open("output/Posit_exp10.csv");
+    ofs <<  "index,input,MPFR,Posit64,Double,winner" << "\n";
 
     for(int i = 0; i < 1000; i++){
         target = site(generator);                             
-        uniform_real_distribution<double> range(1, 10);  
+        uniform_real_distribution<double> range(0, 1);  
         input = range(generator);
 
         num1 = MPFR(input);
@@ -147,16 +148,21 @@ void Run(mt19937 generator, double *interval){
             num3.erase(0, 1);
         }
 
-        ofs << i << "\n";
-        ofs << input << "\n";
-        ofs << setw(10) << "MPFR: " << num1 << "\n";
-        ofs << setw(10) << "Posit: " << num2 << "\n";
-        ofs << setw(10) << "IEEE754: " << num3 << "\n\n";
-        
         double Posit_result = stod(Difference(num1, num2));
         double IEEE754_result = stod(Difference(num1, num3));
         IEEE.push_back(IEEE754_result);
         POS.push_back(Posit_result);
+
+        ofs << i << "," << input << "," << num1 << "," << num2 << "," << num3 << ",";
+        if (abs(Posit_result)<abs(IEEE754_result)) {
+            ofs << "Posit" << '\n';
+        }
+        else if (abs(Posit_result)>abs(IEEE754_result)) {
+            ofs << "Double" << '\n';
+        }
+        else {
+            ofs << "EQUAL" << '\n';
+        }
         
         //cout  << setw(10) << "Posit_D: " << fixed << setprecision(15) << Posit_result << "\n";
         //cout  << setw(10) << "IEEE_D: " << fixed << setprecision(15) << IEEE754_result << "\n\n";
