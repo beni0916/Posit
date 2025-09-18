@@ -5,7 +5,7 @@
     #define N 2
 #endif
 #ifndef P_BIT
-    #define P_BIT 32
+    #define P_BIT 64
 #endif
 using Posit64 = sw::universal::posit<P_BIT, N>;
 using Quire64 = sw::universal::quire<64, N>;
@@ -168,4 +168,5 @@ inline void getExponent(__int32_t ix, int *data){
     ix >>= (32 - N - 1);                   //最後右移正確位元數
     data[2] = ix;                          //得到正確的exponent
 }
+
 
