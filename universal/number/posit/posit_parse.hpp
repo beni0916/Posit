@@ -6,6 +6,7 @@
 // This file is part of the universal numbers project, which is released under an MIT Open Source license.
 #include <iostream>
 #include <regex>
+#include <cstdint>
 #include <sstream>
 #include "posit_fwd.hpp"
 
