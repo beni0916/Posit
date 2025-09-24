@@ -26,6 +26,8 @@ huge_val = 1.0e+300;
 {
 	if(x == NAR)
 		return NAR;
+	if(N != 2)
+		return exp2(x);
 
 	static Posit64 himark = DBL_MAX_EXP;
 	static Posit64 lomark = DBL_MIN_EXP - DBL_MANT_DIG - 1;
@@ -83,7 +85,7 @@ huge_val = 1.0e+300;
 			/* 3. Compute ex2 = 2^(t/512+e+ex).  */
 			ex2_u = Posit64{exp2_accuratetable[tval & 511]};
 			
-			//cout << "ex2_u = " << ex2_u << endl;
+	//	cout << "ex2_u = " << ex2_u << endl;
 			
 			tval >>= 9;
 			unsafe = abs(tval) >= (double)-DBL_MIN_EXP - 56;
@@ -92,7 +94,7 @@ huge_val = 1.0e+300;
 				GET_HIGH_WORD(exp, ex2_u);
 			else
 				GET_LOW_WORD(exp, ex2_u);
-			// cout << "87 exp = " << bitset<32>(exp) << endl;
+	//	 cout << "exp = " << bitset<32>(exp) << endl;
 
 			double tem = (double)ex2_u;
 			
@@ -105,7 +107,9 @@ huge_val = 1.0e+300;
 			getRegime(exp, data);
 			getExponent(exp, data);
 			int offset = 12 - (N + 1 + data[1]);
-			
+	//	cout << "data[0] = " << data[0] << endl;
+	//	cout << "data[1] = " << data[1] << endl;
+
 			//cout << "offset = " << offset << endl;
 			//exp = ((exp & UC(0x7ff00000)) + ((tval >> unsafe) << IEEE754_DOUBLE_SHIFT)) | (exp & ~UC(0x7ff00000));
 			//exp = ((exp & ((~(0x7fffffff >> (N + data[1]))) & 0x7fffffff)) + ((tval >> unsafe) << (20 + offset))) | (exp & ~((~(0x7fffffff >> (N + data[1]))) & 0x7fffffff));
@@ -115,23 +119,26 @@ huge_val = 1.0e+300;
 			// 1.
 			int pow_diff = data[0] * pow(2, N) + data[2]; // the total power
 			int re = 0, ex = 0;	// (r, e)
-			
+	//	cout << "pow_diff = " << pow_diff << endl;
+	//	cout << "tval = " << tval << endl;
+
 			// 2.
 			re = (tval + pow_diff) / pow(2, N);
+	//	cout << "re = " << re << endl;
 			ex = (tval + pow_diff) % ((int)pow(2, N));
 			if(ex < 0)
 			{
 				re = re - 1;
-				ex = ex + 8;
+				ex = ex + 2*2*N;
 			}		
-			
+	//	cout << "re = " << re << endl;
 			// 3.
 			int base = 0;
 			if(re >= 0)
 			{
-				base = 2;
+				base = N;
 				for(int i = 0; i < re; i++)
-					base = base | (1 << (i + 2));
+					base = base | (1 << (i + N));
 				base <<= N; 	// 110 000
 				base += ex;	// 110 001
 			}
@@ -148,8 +155,8 @@ huge_val = 1.0e+300;
 			int ori_bit = data[0];
 			int new_bit = re;
 			
-			//cout << "ori_bit = " << ori_bit << endl;
-			//cout << "new_bit = " << new_bit << endl;
+	//	cout << "ori_bit = " << ori_bit << endl;
+	//	cout << "new_bit = " << new_bit << endl;
 			
 			if(ori_bit >= 0)
 		 		ori_bit = ori_bit + 2;
@@ -164,24 +171,28 @@ huge_val = 1.0e+300;
 			int shift_bit = new_bit - ori_bit;
 			int t_num = (0xffffffff >> (32 - shift_bit)) & exp;
 			
-			//cout << "shift bit = " << shift_bit << endl;
+	//	cout << "shift bit = " << shift_bit << endl;
 			
 			__uint32_t exp_l;
 			GET_LOW_WORD(exp_l, ex2_u);
-
+		
 			if(shift_bit > 0)
 			{
 				exp_l >>= shift_bit;
 				exp_l = (exp_l & (0xffffffff >> shift_bit)) | (0xfffffff & t_num) << (32 - shift_bit);
 			}
-		 	
+	//	cout << "1 exp = " << bitset<32>(exp) << endl;
 		 	exp = exp >> shift_bit;
-		 	base = base << (32 - (1 + new_bit + N));
+		 	if(N != 1)
+				base = base << (32 - (1 + new_bit + N));
+	//	cout << "base = " << bitset<32>(base) << endl;
+	//	cout << "2 exp = " << bitset<32>(exp) << endl;
 	 		exp = (exp & (0xffffffff >> (1 + new_bit + N))) | base;
-
+	//	cout << "3 exp = " << bitset<32>(exp) << endl;
+		
 			__uint32_t exp_t = 0;
-			// cout << "exp   = " << bitset<32>(exp) << endl;
-			// cout << "exp_l = " << bitset<32>(exp_l) << endl;
+	//	 cout << "exp   = " << bitset<32>(exp) << endl;
+	//	 cout << "exp_l = " << bitset<32>(exp_l) << endl;
 			if(P_BIT == 64)
 				INSERT_WORDS(ex2_u, exp, exp_l);
 			else
@@ -251,16 +262,17 @@ int main(void)
 }
 */
 
-// int main(void)
-// {
-// 	cout << "4" << endl;
-// 	Posit64 num = Posit64{4};
-// 	Posit64 ans = Posit_exp2(num);
-// 	cout<< "ans = " << fixed << setprecision(21)<<ans<<"\n";
+/*
+ int main(void)
+ {
+ 	cout << "-4" << endl;
+ 	Posit64 num = Posit64{-4};
+ 	//Posit64 ans = Posit_exp2(num);
+ 	//cout<< "ans = " << fixed << setprecision(21)<<ans<<"\n";
 
-// 	cout << "4.1" << endl;
-// 	Posit64 num1 = Posit64{4.1};
-// 	ans = Posit_exp2(num1);
-// 	cout<< "ans = " << fixed << setprecision(21)<<ans<<"\n";
-// }
-
+ 	cout << "2.2" << endl;
+ 	Posit64 num1 = Posit64{2.2};
+ 	Posit64 ans = Posit_exp2(num1);
+ 	cout<< "ans = " << fixed << setprecision(21)<<ans<<"\n";
+}
+*/

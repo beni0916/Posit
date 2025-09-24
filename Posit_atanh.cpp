@@ -29,6 +29,8 @@ static Posit64 zero = 0.0;
 	__uint32_t lx;
 
 	EXTRACT_WORDS(hx,lx,x);
+	if(P_BIT == 32)
+		hx = lx;
 
     Posit64 limit1{1}, limit2{3.7252903e-9}, limit3{0.5};
 	if (fabs_x > limit1) /* |x|>1 */
