@@ -64,6 +64,8 @@ huge   = 1.0e300;
 	__int32_t hx,id;
 
 	GET_HIGH_WORD(hx,x);
+	if(P_BIT == 32)
+		GET_LOW_WORD(hx, x);
 
     Posit64 limit1{7.3786976e+19}, limit2{0.4375}, limit3{1.86264515e-9};
 	if(fabs_x >= limit1) {	/* if |x| >= 2^66 */
