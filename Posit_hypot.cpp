@@ -11,14 +11,20 @@ using namespace std;
 	Posit64 x, y;
 #endif
 {
+	if(P_BIT == 32)
+		return hypot(x, y);
 	Posit64 a, b, t1, t2, y1, y2, w, fabs_x, fabs_y;
 	__int32_t j, k, ha, hb;
 	x = Posit_fabs(x);
 	y = Posit_fabs(y);
 
 	GET_HIGH_WORD(ha, x);
+	if(P_BIT == 32)
+		GET_LOW_WORD(ha, x);
 	//ha &= (0x7fffffff);
 	GET_HIGH_WORD(hb, y);
+	if(P_BIT == 32)
+		GET_LOW_WORD(ha, x);
 	//hb &= (0x7fffffff);
 	if (hb > ha)		// let a > b
 	{
@@ -34,6 +40,12 @@ using namespace std;
 	}
 	SET_HIGH_WORD(a, ha);				/* a <- |a| */
 	SET_HIGH_WORD(b, hb);				/* b <- |b| */
+	if(P_BIT == 32)
+	{
+		SET_LOW_WORD(a, ha);
+		SET_LOW_WORD(b, hb);
+	}
+	
 	k = 0;
 	
 	if (ha > (0x5f300000))
@@ -58,6 +70,11 @@ using namespace std;
 		k += (600);
 		SET_HIGH_WORD(a, ha);
 		SET_HIGH_WORD(b, hb);
+		if(P_BIT == 32)
+		{
+			SET_LOW_WORD(a, ha);
+			SET_LOW_WORD(b, hb);
+		}
 	}
 	if (hb < (0x20b00000))
 	{		
@@ -71,6 +88,8 @@ using namespace std;
 				return a;
 			t1 = 0;
 			SET_HIGH_WORD(t1, 0x7fd00000);	/* t1=2^1022 */
+			if(P_BIT == 32)
+				SET_LOW_WORD(t1, 0x7fd00000);
 			b *= t1;
 			a *= t1;
 			k -= 1022;
@@ -81,6 +100,11 @@ using namespace std;
 			k -= 600;
 			SET_HIGH_WORD(a, ha);
 			SET_HIGH_WORD(b, hb);
+			if(P_BIT == 32)
+			{
+				SET_LOW_WORD(a, ha);
+				SET_LOW_WORD(b, hb);
+			}
 		}
 	}
 	
@@ -90,6 +114,8 @@ using namespace std;
 	{
 		t1 = Posit64{0};
 		SET_HIGH_WORD(t1, ha);
+		if(P_BIT == 32)
+			SET_LOW_WORD(t1, ha);
 		t2 = a - t1;
 		w = Posit_sqrt(t1 * t1 - (b * (-b) - t2 * (a + t1)));
 	} else
@@ -97,9 +123,13 @@ using namespace std;
 		a = a + a;
 		y1 = Posit64{0};
 		SET_HIGH_WORD(y1, hb);
+		if(P_BIT == 32)
+			SET_LOW_WORD(y1, hb);
 		y2 = b - y1;
 		t1 = Posit64{0};
 		SET_HIGH_WORD(t1, ha + (0x00100000));
+		if(P_BIT == 32)
+			SET_LOW_WORD(y1, hb);
 		t2 = a - t1;
 		w = Posit_sqrt(t1 * y1 - (w * (-w) - (t1 * y2 + t2 * b)));
 	}
