@@ -41,7 +41,9 @@ qS4 =  7.70381505559019352791e-02; /* 0x3FB3B8C5, 0xB12E9282 */
 	__int32_t hx,ix;
 	
 	GET_HIGH_WORD(hx,x);
-	
+	if(P_BIT == 32)
+		GET_LOW_WORD(hx, x);
+
 	if(Posit_fabs(x) > 1) {		/* |x|>= 1 */
 	    __uint32_t lx;
 	    GET_LOW_WORD(lx,x);

@@ -45,8 +45,10 @@ zero = 0.0;
 		if (hx < 0)
 			return (x - x) / (x - x);	/* log(-#) = NaN */
 		k -= 54;
-		x *= two54;						/* subnormal number, scale up x */
+		x *= two54;		/* subnormal number, scale up x */
 		GET_HIGH_WORD(hx, x);
+		if(P_BIT == 32)
+			GET_LOW_WORD(hx, x);
 	}
 	if (hx >= 0x7ff00000)
 		return x + x;

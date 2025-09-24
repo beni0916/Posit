@@ -39,6 +39,9 @@ qS4 =  7.70381505559019352791e-02; /* 0x3FB3B8C5, 0xB12E9282 */
 	__int32_t hx,ix;
 
 	GET_HIGH_WORD(hx,x);
+	if(P_BIT == 32)
+		GET_LOW_WORD(hx, x);
+
 	ix = hx&0x7fffffff;
 
     Posit64 limit1{1}, limit2{0.5}, limit3{6.9388939e-18}, zero{0};

@@ -82,6 +82,8 @@ huge=  1.00000000000000000000e+300;
 	Posit64 t, w, fabs_x = Posit_fabs(x);
 	__int32_t hx;
 	GET_HIGH_WORD(hx,x);
+	if(P_BIT == 32)
+		GET_LOW_WORD(hx, x);
 
 	//if(ix>=0x7ff00000) return x+x;	/* x is inf or NaN */
 	Posit64 limit1{3.7252903e-9}, limit2{268435456}, limit3{2};
