@@ -32,7 +32,7 @@ Posit64 myfmod(Posit64 x, Posit64 y) {
     if (x == 1.0 || y == 1.0) return x;  // (anything) ** 1 is itself
     if (isnan(x) || isnan(y)) {
         if (x == 1.0) return 1.0;  // +1 ** NAN is 1
-        else return NAN;           // anything ** NAN is NAN
+        // else return NAN;           // anything ** NAN is NAN
     }
     if (isinf(y)) {
         if (fabs(x) > 1.0) return (y > 0) ? INFINITY : 0.0;  // |x| > 1
@@ -47,7 +47,7 @@ Posit64 myfmod(Posit64 x, Posit64 y) {
 
     // // Handling negative bases
     if (x < 0) {
-        if (floor(y) != y) return NAN;  // (-anything except 0 and inf) ** (non-integer) is NAN
+        // if (floor(y) != y) return NAN;  // (-anything except 0 and inf) ** (non-integer) is NAN
         Posit64 two{2.0};
         return (myfmod(y, two) == 0.0) ? pow(-x, y) : -pow(-x, y);  // (-anything) ** (integer)
     }

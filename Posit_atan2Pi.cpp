@@ -29,8 +29,12 @@ pi_lo = 1.2246467991473531772E-16;	/* 0x3CA1A626, 0x33145C07 */
 	__uint32_t lx, ly;
 	
 	EXTRACT_WORDS(hx, lx, x);
+	if(P_BIT == 32)
+		hx = lx;
 	ix = hx & (0x7fffffff);
 	EXTRACT_WORDS(hy, ly, y);
+	if(P_BIT == 32)
+		hy = ly;
 	iy = hy & (0x7fffffff);
 	
 

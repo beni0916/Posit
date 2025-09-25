@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -o
-LIBFLAGS = -lgmp -lmpfr
+LIBFLAGS = testTool.cpp -lgmp -lmpfr
 
 RES_COSPI = Result_cosPi
 RES_SINPI = Result_sinPi
