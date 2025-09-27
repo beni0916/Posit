@@ -32,6 +32,8 @@ static Posit64 zero   =  0.0;
     int n;
     __uint32_t hx;
     GET_HIGH_WORD(hx,x);
+	if(P_BIT == 32)
+		GET_LOW_WORD(hx, x);
     int data[5] = {0};
 	getRegime(hx, data);
 	getExponent(hx, data);

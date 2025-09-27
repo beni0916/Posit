@@ -2,10 +2,10 @@
 #include "universal/number/posit/quire.hpp"
 #include <iomanip>
 #ifndef N
-    #define N 2
+    #define N 1
 #endif
 #ifndef P_BIT
-    #define P_BIT 64
+    #define P_BIT 32
 #endif
 using Posit64 = sw::universal::posit<P_BIT, N>;
 using Quire64 = sw::universal::quire<64, N>;
