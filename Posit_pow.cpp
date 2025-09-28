@@ -42,13 +42,15 @@ Posit64 myfmod(Posit64 x, Posit64 y) {
     }
 
     // // Handling negative bases
-    if (x < 0) {
-        if (floor(y) != y) return NAN;  // (-anything except 0 and inf) ** (non-integer) is NAN
-        Posit64 two{2.0};
-        return (myfmod(y, two) == 0.0) ? pow(-x, y) : -pow(-x, y);  // (-anything) ** (integer)
-    }
+//    if (x < 0) {
+//        if (floor(y) != y) return NAN;  // (-anything except 0 and inf) ** (non-integer) is NAN
+//        Posit64 two{2.0};
+//        return (myfmod(y, two) == 0.0) ? pow(-x, y) : -pow(-x, y);  // (-anything) ** (integer)
+//    }
 
     //cout << y * Posit_log(x) << "\n";
+	if(x < 0)
+		return Posit64{-1} * Posit_exp2(y * Posit_log2(Posit_fabs(x)));
     return Posit_exp2(y * Posit_log2(x));  // x^y = exp(y * log(x))
 }
 

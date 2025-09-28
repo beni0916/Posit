@@ -23,7 +23,9 @@ static double Posit64 one = 1.0, two = 2.0, tiny = 1.0e-300;
 
     /* High word of |x|. */
 	GET_HIGH_WORD(jx,x);
-     /* x is INF or NaN */
+	if(P_BIT == 32)
+		GET_LOW_WORD(jx, x);
+   	/* x is INF or NaN */
 	// if(ix>=0x7ff00000) { 
 	//     if (jx>=0) return one / x+one;    /* tanh(+-inf)=+-1 */
 	//     else       return one / x-one;    /* tanh(NaN) = NaN */

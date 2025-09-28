@@ -34,6 +34,8 @@ zero = 0.0;
 	x = x + Posit64{1};
 	
 	EXTRACT_WORDS(hx, lx, x);
+	if(P_BIT == 32)
+		hx = lx;
 
 	k = 0;
 	if (hx < 0x00100000)
@@ -45,6 +47,8 @@ zero = 0.0;
 		k -= 54;
 		x *= two54;						/* subnormal number, scale up x */
 		GET_HIGH_WORD(hx, x);
+		if(P_BIT == 32)
+			GET_LOW_WORD(hx, x);
 	}
 	if (hx >= 0x7ff00000)
 		return x + x;

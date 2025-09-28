@@ -30,10 +30,14 @@ Posit64 one{1.0}, tiny{1.0e-300};
 	__int32_t ix0, k, y0;
 
     EXTRACT_WORDS(ix0,ix1,x);						//取得x的高位與低位
-
+	if(P_BIT == 32)
+		ix0 = ix1;
+    
     k  = (ix0>>1) + 0x1ff80000;						//用作計算初始平方根的估計
 	y0 = k - T1[31&(k>>15)];						//使用查表 (T1) 進一步修正估計值
     INSERT_WORDS(y, y0, 0);							//將結果放回變數y的高位，0放入y的低位
+	if(P_BIT == 32)
+		INSERT_WORDS(y, y0, y0);
 
 	
 	y = (y+x/y) / 2;								//開始牛頓迭代
