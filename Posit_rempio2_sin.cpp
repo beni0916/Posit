@@ -9,7 +9,7 @@ using namespace std;
 	Posit64 x, y[];
 #endif
 {   
-	Posit64 pi_over2{1.5707963267948966192313216916398};
+	Posit64 pi_over2 = PI / Posit64{2};
 	Posit64 d_pi = 2 * PI, zero{0};
 	__int32_t n = 0;
 
