@@ -42,7 +42,7 @@ int main() {
     random_device rd;
     mt19937 generator(rd());   
     mpfr_t result;
-    double input;
+    double input,base;
     string num1, num2, num3;
     vector<double> IEEE, POS;
     ofs.open("output/Posit_atan2.csv");
