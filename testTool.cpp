@@ -70,8 +70,8 @@ std::string add(std::string num1, std::string num2) {
     int carry = 0;
     int n1 = num1.length();
     std::string result = "";
-    reverse(num1.begin(), num2.end());
-    reverse(num1.begin(), num2.end());
+    reverse(num1.begin(), num1.end());
+    reverse(num2.begin(), num2.end());
     for (int i = 0; i < n1; i++) {
         if(num1[i] == '.'){
             result.push_back('.');
